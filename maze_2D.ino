@@ -51,7 +51,7 @@ uint8_t number_of_doors[]={4,4};
 
 Point_exetened collision_point;
 
-Maze_generator maze_gen (NUMBER_OF_COL_MAP, NUMBER_OF_ROWS_MAP, maze);
+Maze_generator maze_gen (NUMBER_OF_COL_MAP, NUMBER_OF_ROWS_MAP, maze, 3);
 
 void down()
 {

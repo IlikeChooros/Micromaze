@@ -1,10 +1,12 @@
 #include "Maze-generator.h"
 
-Maze_generator::Maze_generator(uint8_t number_of_c,uint8_t number_of_r, uint8_t *matrix)
+Maze_generator::Maze_generator(uint8_t number_of_c,uint8_t number_of_r, uint8_t *matrix, uint8_t starting_pos)
 {
     _map = matrix;
     _number_of_cols = number_of_c;
     _number_of_rows = number_of_r;
+
+    _starting_pos = starting_pos;
 
     four_generators = new LinkedList [4];
     randomSeed(analogRead(UNUSED_PIN_ANALOG));
@@ -27,34 +29,53 @@ Maze_generator::Maze_generator(uint8_t number_of_c,uint8_t number_of_r, uint8_t 
 
 void Maze_generator::_init_()
 {
+
+    Node *head;
+
+
+// ------------     1   --  UP    ------------
     uint8_t rand_num = random(7, _number_of_cols-6);
-    _map[_number_of_cols + rand_num]=1;
-    _map[_number_of_cols*2+rand_num]=1;
-    four_generators[0].add_first(new Point(rand_num,2));  // 1
+    four_generators[0].add_first(new Point(rand_num,1)); //1
 
+    _starting_pos++;
+    head = four_generators[0].get_node_head();
+    // _map[head->point->y*_number_of_cols + head->point->x]=2;
+    move_wall_down(head,_starting_pos,(head->point->y)*_number_of_cols + head->point->x);
+
+
+// ------------     2   --  ON RIGHT     ------------
     rand_num = random(7, _number_of_rows-6);
-    _map[(rand_num+1)*_number_of_cols - 2]=1;
-    _map[(rand_num+1)*_number_of_cols - 3]=1;
-    four_generators[1].add_first(new Point(_number_of_cols - 3,rand_num));  //  2
+    
+    four_generators[1].add_first(new Point(_number_of_cols - 2,rand_num));  //  2
+    head = four_generators[1].get_node_head();
+    //_map[head->point->y*_number_of_cols + head->point->x]=2;
+    move_wall_left(head, _starting_pos, head->point->y * _number_of_cols + head->point->x);
 
+
+// ------------     3   --  DOWN     ------------
     rand_num = random(7, _number_of_cols-6);
-    _map[(_number_of_rows-2)*_number_of_cols + rand_num]=1;
-    _map[(_number_of_rows-3)*_number_of_cols + rand_num]=1;
-    four_generators[2].add_first(new Point(rand_num, _number_of_rows - 3));//  3
 
+    four_generators[2].add_first(new Point(rand_num, _number_of_rows - 2));//  3
+    head = four_generators[2].get_node_head();
+    //_map[head->point->y*_number_of_cols + head->point->x]=2;
+    move_wall_up(head, _starting_pos, (head->point->y) * _number_of_cols + head->point->x);
+
+
+// ------------     4   --  ON LEFT     ------------
     rand_num = random(7, _number_of_rows-6);
-    _map[rand_num*_number_of_cols + 1]=1;
-    _map[rand_num*_number_of_cols + 2]=1;
-    four_generators[3].add_first(new Point(2, rand_num)); //  4
+
+    four_generators[3].add_first(new Point(1, rand_num)); //  4
+    head = four_generators[3].get_node_head();
+    //_map[head->point->y*_number_of_cols + head->point->x]=2;
+    move_wall_right(head, _starting_pos, head->point->y* _number_of_cols + head->point->x);
 }
 
 void Maze_generator::generate_maze()
 {
-    for (uint8_t i = 0;i < 4; i++)
+    for (uint8_t i = 0;i < 3; i++)
     {
         generate_part_maze(i);
     }
-    
 }
 
 // private
@@ -77,8 +98,8 @@ void Maze_generator::move_wall_down(Node *node, uint8_t dist, uint16_t _pos)
             break;
         }
         else {
-            _map[_pos]=1; 
             _pos += _number_of_cols;
+            _map[_pos]=1; 
         }
     }
     
