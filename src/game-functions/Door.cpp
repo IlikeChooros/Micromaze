@@ -39,7 +39,7 @@ void Door::clear_map()
     delete door_positions;
 }
 
-bool Door::check_collision_with_player(Point player_pos)
+bool Door::check_collision_with_player(Point_exetened player_pos)
 {
     for (uint8_t i = 0; i<_number_of_doors; i++)
     {

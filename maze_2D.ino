@@ -1,9 +1,12 @@
 #include "src/input/Joystick_esp.h"
 #include "src/output/Matrix_map.h"
 #include "src/output/Player_tft.h"
-#include "src/output/Ray-casting.h"
+#include "src/output/Ray-casting-2D.h"
 #include "src/output/Level_maps.h"
 #include "src/game-functions/Door.h"
+#include "src/game-functions/Maze-generator.h"
+#include "src/game-functions/LinkedList.h"
+#include "src/game-functions/Point.h"
 
 #include <TFT_eSPI.h> 
 #include <SPI.h>
@@ -23,7 +26,7 @@ Joystick joystick(ANALOG_X, ANALOG_Y);
 
 Matrix_map world_map(&tft);
 
-Point starting_pos_player = {12,3,10.0,3.0};
+Point_exetened starting_pos_player = {12,3,10.0,3.0};
 
 
 Player_tft player(starting_pos_player,&tft,&world_map);
@@ -46,7 +49,9 @@ uint8_t *all_maps[2]={
 
 uint8_t number_of_doors[]={4,4};
 
-Point collision_point;
+Point_exetened collision_point;
+
+Maze_generator maze_gen (NUMBER_OF_COL_MAP, NUMBER_OF_ROWS_MAP, maze);
 
 void down()
 {
@@ -94,10 +99,6 @@ void right()
     ray_casting.draw(player.get_current_player_position(), player.get_current_angle());
 }
 
-
-//------------------------------------------- FOR 2 MODE DISCLAIMER: -------------------------------------------------------------------------
-//    CHECK function loop(), setup(), Ray-casting.cpp AND Player_tft.cpp FOR COMMENTED LINES TO DISABLE 2D MODE 
-
 void setup()
 {
     joystick._init_();
@@ -110,20 +111,22 @@ void setup()
     tft.init();
     tft.fillScreen(TFT_BLACK);
 
-    world_map.set_map(first_map,NUMBER_OF_ROWS_MAP,NUMBER_OF_COL_MAP, 229,180,22);
-    //world_map.draw_map();    //  UNCOMMENT  FOR 2D MODE
+    maze_gen._init_();
+    maze_gen.generate_maze();
 
-    player._init_();
-    ray_casting._init_();
+    world_map.set_map(maze,NUMBER_OF_ROWS_MAP,NUMBER_OF_COL_MAP, 229,180,22);
+    world_map.draw_map();
 
-    door.load_map(number_of_doors[map_idx]);
+    //player._init_();
+    //ray_casting._init_();
 
-    ray_casting.draw(player.get_current_player_position(), player.get_current_angle());
+    //door.load_map(number_of_doors[map_idx]);
+
+    //ray_casting.draw(player.get_current_player_position(), player.get_current_angle());
 }
 
-uint32_t time_eplapsed=0;
 void loop()
 {
-    joystick.read();
+    //joystick.read();
 
 }   

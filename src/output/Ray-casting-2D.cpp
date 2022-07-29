@@ -1,4 +1,4 @@
-#include "Ray-casting.h"
+#include "Ray-casting-2D.h"
 
 Ray_casting::Ray_casting(TFT_eSPI *tft, Matrix_map *matrix, uint8_t ray_lenght, double angle_increment, double angle_of_view, HSV *colors)
 {
@@ -20,26 +20,24 @@ void Ray_casting::_init_()
 }
 
 
-void Ray_casting::draw(Point player_pos, double angle)
+void Ray_casting::draw(Point_exetened player_pos, double angle)
 {
-    double ray_angle=angle, starting_angle = check_if_overlow(angle - _angle_of_view/2), ending_angle = check_if_overlow(angle + _angle_of_view/2);
+    double ray_angle=angle, angle_of_ray=0, starting_angle = check_if_overlow(angle - _angle_of_view/2- _angle_itr*5), ending_angle = check_if_overlow(angle + _angle_of_view/2);
 
     //_tft->fillScreen(TFT_BLACK); // COMMENT FOR 2D MODE
 
     Serial.println("STARTING ANGLE: "+String(starting_angle)+ " ENDING ANGLE: "+ String(ending_angle));
 
-    uint16_t counter = 0;
-    for (double angle_of_ray = 0; angle_of_ray<_angle_of_view; angle_of_ray+=_angle_itr)
+    for (; angle_of_ray<_angle_of_view; angle_of_ray+=_angle_itr)
     {
         starting_angle= check_if_overlow(starting_angle+_angle_itr);
-        ray_cast(starting_angle, player_pos, counter);
-        counter++;
+        ray_cast(starting_angle, player_pos);
     }
 }
 
 //private
 
-void Ray_casting::ray_cast(double angle, Point player_pos, uint16_t counter)
+void Ray_casting::ray_cast(double angle, Point_exetened player_pos)
 {
 
     double dist, double_x, double_y;
@@ -80,9 +78,8 @@ void Ray_casting::ray_cast(double angle, Point player_pos, uint16_t counter)
 
             
             //Serial.println("X POINT: "+String(x_pointer)+" Y POINT: "+String(y_pointer));
-            _tft->fillRect(ray_position.x*width_of_segment, ray_position.y*height_of_segment,width_of_segment,height_of_segment,HSV_to_RGB(_colors[color_idx], (uint8_t) dist)); //  UNCOMMENT  FOR 2D MODE
-            //draw_segment(dist, counter, HSV_to_RGB(_colors[color_idx], (uint8_t) dist));  // COMMENT FOR 2D MODE
-            
+
+            _tft->fillRect(ray_position.x*width_of_segment, ray_position.y*height_of_segment,width_of_segment,height_of_segment,HSV_to_RGB(_colors[color_idx], (uint8_t) dist));
 
             return;
         }
@@ -93,27 +90,6 @@ void Ray_casting::ray_cast(double angle, Point player_pos, uint16_t counter)
         }
     }
 }
-
-
-void Ray_casting::draw_segment(double dist, uint16_t counter, uint32_t color)
-{
-    uint16_t height_wall = round(_tft->width()-dist*11);
-
-    double y_pos = counter*height_of_segment;
-    Serial.println("STARTING PRINTING --- DIST: "+ String(dist)+ " y_pos: "+ String(y_pos));
-    //_tft->fillRect(dist*2, round(y_pos), width_of_segment, height_wall,  converToRGB(_r - 2*dist, _g, _b - 2*dist) );
-
-    // for (uint16_t y = round(y_pos); y<(round(y_pos) + round(height_of_segment)); y++ )
-    // {
-    //     _tft->drawLine( round(dist*5),y,round(dist*5)+height_wall ,y ,color);
-    // }
-
-    //_tft->fillRect(round(dist*5), y_pos, height_wall, height_of_segment, color);
-    _tft->fillRect(round(dist*5), y_pos, height_wall, height_of_segment, color);
-
-    Serial.println("FINISHED PRINTING");
-}
-
 
 bool Ray_casting::wall_collision(uint16_t ray_pos)
 {

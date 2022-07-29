@@ -1,6 +1,6 @@
 #include "Player_tft.h"
 
-Player_tft::Player_tft(Point starting_point, TFT_eSPI *tft, Matrix_map *matrix_map)
+Player_tft::Player_tft(Point_exetened starting_point, TFT_eSPI *tft, Matrix_map *matrix_map)
 {
     _player_coordinates = starting_point;
 
@@ -29,7 +29,7 @@ void Player_tft::_init_()
 void Player_tft::move_left()
 {
     Serial.print(" CHANGING ANGLE (LEFT) - : ");
-    angle-=0.15;
+    angle+=0.15;
     check_if_overflow();
 
     Serial.println(String(angle));
@@ -38,18 +38,18 @@ void Player_tft::move_left()
 void Player_tft::move_right()
 {
     Serial.print(" CHANGING ANGLE (RIGHT) + : ");
-    angle+=0.15;
+    angle-=0.15;
     check_if_overflow();
 
     Serial.println(String(angle));
 }
 
-Point Player_tft::move_forward()
+Point_exetened Player_tft::move_forward()
 {
     Serial.print("MOVE FORWARD curr_x: "+String(_player_coordinates.x)+" curr_y"+String(_player_coordinates.y)+" TO -> ");
     float x,y;
 
-    Point collision_point = {-1,-1,-1,-1};
+    Point_exetened collision_point = {-1,-1,-1,-1};
 
     y = cos(angle); 
     x = sin(angle);
@@ -87,11 +87,11 @@ Point Player_tft::move_forward()
     return collision_point;
 }
 
-Point Player_tft::move_backwards()
+Point_exetened Player_tft::move_backwards()
 {
     float x,y;
 
-    Point collision_point = {-1,-1,-1,-1};
+    Point_exetened collision_point = {-1,-1,-1,-1};
 
     y = cos(angle); 
     x = sin(angle);
@@ -133,7 +133,7 @@ Point Player_tft::move_backwards()
     return collision_point;
 }
 
-Point Player_tft::get_current_player_position()
+Point_exetened Player_tft::get_current_player_position()
 {
     return _player_coordinates;
 }
@@ -143,7 +143,7 @@ float Player_tft::get_current_angle()
     return angle;
 }
 
-void Player_tft::set_player_posistion(Point point)
+void Player_tft::set_player_posistion(Point_exetened point)
 {
     _player_coordinates.x = point.x;
     _player_coordinates.y = point.y;
