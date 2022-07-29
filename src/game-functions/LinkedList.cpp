@@ -65,17 +65,17 @@ Point *LinkedList::poll_last()
     return lastPoint;
 }
 
-uint8_t LinkedList::size()
+uint16_t LinkedList::size()
 {
     return !this->_head ? 0:1+this->count(this->_head->next);
 }
 
-uint8_t LinkedList::count(Node *node)
+uint16_t LinkedList::count(Node *node)
 {
     return !node ? 0 : 1 + this->count(node->next);
 }
 
-void LinkedList::set_size(uint8_t max_size)
+void LinkedList::set_size(uint16_t max_size)
 {
     this->_max_size = max_size;
 }

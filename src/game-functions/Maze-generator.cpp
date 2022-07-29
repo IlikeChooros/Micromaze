@@ -50,9 +50,9 @@ void Maze_generator::_init_()
 
 void Maze_generator::generate_maze()
 {
-    for (uint8_t i = 0;i < 3; i++)
+    for (uint8_t i = 0;i < 4; i++)
     {
-        generate_part_maze();
+        generate_part_maze(i);
     }
     
 }
@@ -256,7 +256,7 @@ void Maze_generator::check_possible_moves(uint8_t dir, uint8_t generator, Node* 
     }
 }                                                                           
 
-void Maze_generator::generate_part_maze()
+void Maze_generator::generate_part_maze(uint8_t generation)
 {
 
     for (uint8_t i = 0; i<4;i++)
@@ -276,6 +276,43 @@ void Maze_generator::generate_part_maze()
             }
             node = node->next;
         }
+        delete_unused_nodes(generation, i);
    }
+}
+
+
+uint32_t Maze_generator::to_power_3(uint8_t num)
+{
+    uint32_t n=1;
+    if (num != 0)
+    {
+        for (uint8_t i = 0; i<num;i++)
+        {
+            n*=3;
+        }
+    }
+    return n;
+}
+
+void Maze_generator::delete_unused_nodes(uint8_t generation, uint8_t generator)
+{
+    uint16_t new_size =four_generators[generation].size();
+    
+    uint32_t num = to_power_3(generation);
+
+    Serial.println("GEN: "+ String(generation) + ", generator: "+ String(generator) + " to_power: "+ String(num));
+    for (uint32_t j = 0; j<num;j++)
+    {
+        new_size--;
+        Point *temp_point = four_generators[generator].poll_last();
+        if (!temp_point)
+        {
+            Serial.println("WARNING!!! -- "+ String(j));
+            return;
+        }
+        Serial.println("    --- deleting point ("+String(temp_point->x)+", "+String(temp_point->y));
+        delete temp_point;
+    }
+    four_generators[generator].set_size(new_size);
 }
 

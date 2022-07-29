@@ -21,15 +21,15 @@ class Node
  {
     Node *_head;
     Node *_tail;
-    uint8_t _max_size;
+    uint16_t _max_size;
 
-    uint8_t count(Node *node);
+    uint16_t count(Node *node);
     public:
     LinkedList();
     Point* add_first(Point *point);
     Point* poll_last();
-    uint8_t size();
-    void set_size(uint8_t max_size);
+    uint16_t size();
+    void set_size(uint16_t max_size);
     Point *get_head();
     Node *get_node_head();
     Node *get_node_tail();

@@ -30,7 +30,10 @@ class Maze_generator
     void move_wall_up(Node *node, uint8_t dist, uint16_t _pos);
     void move_wall_down(Node *node, uint8_t dist, uint16_t _pos);
 
-    void generate_part_maze();
+    void generate_part_maze(uint8_t generation);
+
+    void delete_unused_nodes(uint8_t i, uint8_t generator);
+    uint32_t to_power_3(uint8_t num);
 
     public:
     Maze_generator(uint8_t number_of_col, uint8_t number_of_rows,uint8_t *matrix);
