@@ -21,6 +21,8 @@ class Maze_generator
     uint8_t _number_of_rows;
     uint8_t _number_of_cols;
 
+    uint8_t _number_of_generations;
+
     uint8_t _starting_pos;
 
     bool finished;
@@ -40,7 +42,8 @@ class Maze_generator
     public:
     Maze_generator(uint8_t number_of_col, uint8_t number_of_rows,uint8_t *matrix, uint8_t starting_pos);
     void _init_();
-    void generate_maze();
+    void generate_maze(uint8_t number_of_generations);
+    void reset();
 };
 
 

@@ -69,13 +69,32 @@ void Maze_generator::_init_()
     move_wall_right(head, _starting_pos, head->point->y* _number_of_cols + head->point->x);
 }
 
-void Maze_generator::generate_maze()
+void Maze_generator::generate_maze(uint8_t num_of_gen)
 {
+    _number_of_generations = num_of_gen;
     uint8_t i=0;
-    for (;i<5;)
+    for (;i<num_of_gen;)
     {
         generate_part_maze(i);
         i++;
+    }
+}
+
+void Maze_generator::reset()
+{
+    for (uint8_t i=0;i<4;i++)
+    {
+        Serial.println("BEFORE SIZE: "+String(four_generators[i].size()));
+        delete_unused_nodes(_number_of_generations+1,i);
+        Serial.println("AFTER SIZE: "+ String(four_generators[i].size()));
+    }
+
+    for (uint8_t y=1;y<_number_of_rows-1;y++)
+    {
+        for(uint8_t x=1;x<_number_of_cols-1;x++)
+        {
+            _map[y*_number_of_cols+x]=0;
+        }
     }
 }
 
@@ -160,6 +179,7 @@ jump_up:
     // _map[_pos - 1 + _number_of_cols]=2;
     // _map[_pos +1 +_number_of_cols]=2;
 }
+
 void Maze_generator::move_wall_left(Node *node, uint8_t dist, uint16_t _pos)
 {
     _pos++;
@@ -343,19 +363,21 @@ void Maze_generator::delete_unused_nodes(uint8_t generation, uint8_t generator)
     
     uint32_t num = to_power_3(generation);
 
-    Serial.println("GEN: "+ String(generation) + ", generator: "+ String(generator) + " to_power: "+ String(num));
+    //Serial.println("GEN: "+ String(generation) + ", generator: "+ String(generator) + " to_power: "+ String(num));
     for (uint32_t j = 0; j<num;j++)
     {
         new_size--;
         Point *temp_point = four_generators[generator].poll_last();
         if (!temp_point)
         {
-            Serial.println("WARNING!!! -- "+ String(j));
+            //Serial.println("WARNING!!! -- "+ String(j));
             return;
         }
-        Serial.println("    --- deleting point ("+String(temp_point->x)+", "+String(temp_point->y));
+        //Serial.println("    --- deleting point ("+String(temp_point->x)+", "+String(temp_point->y));
         delete temp_point;
     }
     four_generators[generator].set_size(new_size);
 }
+
+
 

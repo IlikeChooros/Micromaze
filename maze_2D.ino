@@ -109,13 +109,22 @@ void setup()
 
     Serial.begin(921600);
     tft.init();
-    tft.fillScreen(TFT_BLACK);
 
-    maze_gen._init_();
-    maze_gen.generate_maze();
+    for (uint8_t i=0;i<5;i++)
+    {
+        maze_gen._init_();
+        maze_gen.generate_maze(5);
 
-    world_map.set_map(maze,NUMBER_OF_ROWS_MAP,NUMBER_OF_COL_MAP, 229,180,22);
-    world_map.draw_map();
+        world_map.set_map(maze,NUMBER_OF_ROWS_MAP,NUMBER_OF_COL_MAP, 229,180,22);
+        tft.fillScreen(TFT_BLACK);
+        world_map.draw_map();
+
+        maze_gen.reset();
+        delay(1000);
+    }
+
+    //maze_gen._init_();
+    
 
     //player._init_();
     //ray_casting._init_();
