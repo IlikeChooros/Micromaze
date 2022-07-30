@@ -32,7 +32,6 @@ void Maze_generator::_init_()
 
     Node *head;
 
-
 // ------------     1   --  UP    ------------
     uint8_t rand_num = random(7, _number_of_cols-6);
     four_generators[0].add_first(new Point(rand_num,1)); //1
@@ -72,9 +71,11 @@ void Maze_generator::_init_()
 
 void Maze_generator::generate_maze()
 {
-    for (uint8_t i = 0;i < 3; i++)
+    uint8_t i=0;
+    for (;i<5;)
     {
         generate_part_maze(i);
+        i++;
     }
 }
 
@@ -87,58 +88,71 @@ void Maze_generator::move_wall_down(Node *node, uint8_t dist, uint16_t _pos)
     //  # X #
     //  # # #
     _pos -= _number_of_cols;
+
+    if (_map[_pos -2 + 2*_number_of_cols] || _map[_pos-1 + 2*_number_of_cols] || _map[_pos + 2 + 2*_number_of_cols] || _map[_pos +1 + 2*_number_of_cols])
+    {
+        node->down = false;
+        goto jump_down;
+    }
+
     for (uint8_t i = 0 ;i<dist;i++)
     {
-        if (_map[_pos - 1 + 2*_number_of_cols] || _map[_pos + 2*_number_of_cols] || _map[_pos+1+ 2*_number_of_cols] || _map[_pos - 1 + _number_of_cols] || _map[_pos + 1 + _number_of_cols])
+        for (int8_t j=-2;j<3;j++)
         {
-            if (!i)
+            if (_map[_pos +j + 3*_number_of_cols])
             {
-                node->down=false;
+                if (!j)
+                {
+                    node->up=false;
+                }
+                goto jump_down;
             }
-            break;
         }
-        else {
-            _pos += _number_of_cols;
-            _map[_pos]=1; 
-        }
+        _pos += _number_of_cols;
+        _map[_pos]=1;
     }
-    
 
+jump_down:
     node->point->y = _pos/_number_of_cols;
     node->point->x = _pos%_number_of_cols;
 
-    _map[node->point->y*_number_of_cols + node->point->x]=2;
-
-    // _map[_pos -1]=2;
-    // _map[_pos] =2;
-    // _map[_pos + 1]=2;
-    // _map[_pos - 1 - _number_of_cols]=2;
-    // _map[_pos +1 - _number_of_cols]=2;
+    _map[_pos] = 3;
+    return;
 }
 
 void Maze_generator::move_wall_up(Node *node, uint8_t dist, uint16_t _pos)
 {
     _pos+=_number_of_cols; 
-    for (uint8_t i = 0 ;i<dist;i++)
+
+    if (_map[_pos - 2 - 2*_number_of_cols] || _map[_pos + 2 -2*_number_of_cols] || _map[_pos - 1 - 2*_number_of_cols] || _map[_pos +1 - 2*_number_of_cols])
     {
-        if ( (_map[_pos - 1 - 2*_number_of_cols] || _map[_pos - 2*_number_of_cols]) || (_map[_pos + 1 - 2*_number_of_cols] || _map[_pos - 1 - _number_of_cols]) || _map[_pos +1 - _number_of_cols] ) //
-        {
-            if (!i)
-            {
-                node->up=false;
-            }
-            break;
-        }
-        else {
-            _pos -= _number_of_cols;
-            _map[_pos]=1;
-        }
+        node->up = false;
+        goto jump_up;
     }
 
+    for (uint8_t i = 0 ;i<dist;i++)
+    {
+        for (int8_t j=-2;j<3;j++)
+        {
+            if (_map[_pos +j - 3*_number_of_cols])
+            {
+                if (!j)
+                {
+                    node->up=false;
+                }
+                goto jump_up;
+            }
+        }
+        _pos -= _number_of_cols;
+        _map[_pos]=1;
+    }
+
+jump_up:
     node->point->y = _pos/_number_of_cols;
     node->point->x = _pos%_number_of_cols;
 
-    _map[node->point->y*_number_of_cols + node->point->x]=2;
+    _map[_pos]=3;
+    return;
 
     //  _map[_pos -1]=2;
     //  _map[_pos] =2;
@@ -149,63 +163,71 @@ void Maze_generator::move_wall_up(Node *node, uint8_t dist, uint16_t _pos)
 void Maze_generator::move_wall_left(Node *node, uint8_t dist, uint16_t _pos)
 {
     _pos++;
-    for (uint8_t i = 0 ;i<dist;i++)
+
+    if (_map[_pos - 2*_number_of_cols - 1] || _map[_pos + 2*_number_of_cols - 1] ||_map[_pos + 2*_number_of_cols - 2]|| _map[_pos - 2*_number_of_cols - 2])
     {
-        if (_map[_pos - _number_of_cols - 2] || _map[_pos - 2] || _map[_pos + _number_of_cols - 2] || _map[_pos - _number_of_cols - 1] || _map[_pos + _number_of_cols - 1]) 
+        node->left = false;
+        goto jump_left;
+    }
+        for (uint8_t i = 0 ;i<dist;i++)
         {
-            if (!i)
+            for (int8_t j=-2; j<3;j++)
             {
-                node->left=false;
+                if (_map[_pos + j*_number_of_cols - 3]) 
+                {
+                    if (!j)
+                    {
+                        node->left=false;
+                    }
+                    goto jump_left;
+                }
             }
-            break;
-        }
-        else {
             _pos--;
             _map[_pos]=1;
-        }
-    }
 
+        }
+
+jump_left:
     node->point->y = _pos/_number_of_cols;
     node->point->x = _pos%_number_of_cols;
 
-    _map[node->point->y*_number_of_cols + node->point->x]=2;
+    _map[_pos]=3;
+    return;
 
-    // _map[_pos - _number_of_cols]=2;
-    // _map[_pos]=2;
-    // _map[_pos + _number_of_cols] = 2;
-    // _map[_pos - _number_of_cols + 1] = 2;
-    // _map[_pos + _number_of_cols + 1] = 2;
 }
 void Maze_generator::move_wall_right(Node *node, uint8_t dist, uint16_t _pos)
 {
     _pos--;
+
+
+    if ( _map[_pos - 2*_number_of_cols + 1] || _map[_pos + 2*_number_of_cols + 1] || _map[_pos - 2*_number_of_cols + 2] || _map[_pos + 2*_number_of_cols + 2])
+    {
+        node->right = false;
+        goto jump_right;
+    }
     for (uint8_t i = 0 ;i<dist;i++)
     {
-        if (_map[_pos - _number_of_cols + 2] || _map[_pos + 2] || _map[_pos +_number_of_cols + 2] || _map[_pos - _number_of_cols + 1] || _map[_pos + _number_of_cols + 1])
+        for (int8_t j = -2; j<3; j++)
         {
-            if (!i)
+            if (_map[_pos + j*_number_of_cols + 3])
             {
-                node->right=false;
+                if (!j)
+                {
+                    node->right=false;
+                }
+                goto jump_right;
             }
-            break;
         }
-        else {
-            _pos++;
-            _map[_pos]=1;
-        }
+        _pos++;
+        _map[_pos]=1;
     }
 
+jump_right:
     node->point->y = _pos/_number_of_cols;
     node->point->x = _pos%_number_of_cols;
 
-    _map[node->point->y*_number_of_cols + node->point->x]=2;
-
-    // _map[_pos - _number_of_cols]=2;
-    // _map[_pos]=2;
-    // _map[_pos + _number_of_cols] = 2;
-    // _map[_pos - _number_of_cols - 1] = 2;
-    // _map[_pos + _number_of_cols - 1] = 2;       
-
+    _map[_pos]=3;
+    return;
 }
 
 void Maze_generator::check_possible_moves(uint8_t dir, uint8_t generator, Node* node, uint8_t dist)
@@ -317,7 +339,7 @@ uint32_t Maze_generator::to_power_3(uint8_t num)
 
 void Maze_generator::delete_unused_nodes(uint8_t generation, uint8_t generator)
 {
-    uint16_t new_size =four_generators[generation].size();
+    uint16_t new_size =four_generators[generator].size();
     
     uint32_t num = to_power_3(generation);
 
