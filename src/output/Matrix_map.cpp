@@ -22,26 +22,19 @@ void Matrix_map::draw_map() // FOR 2D ONLY
     {
         for (uint8_t x=0;x<number_of_col_map;x++)
         {
-            if (_map[y*number_of_col_map+x]==1)
-            {
-                x_pointer = x*width_of_segment;
-                y_pointer = y*height_of_segment;
-                //Serial.println("X POINT: "+String(x_pointer)+" Y POINT: "+String(y_pointer));
-                _tft->fillRect(x_pointer, y_pointer,width_of_segment,height_of_segment,_colour);
-            }
-            else if (_map[y*number_of_col_map + x]==2)
+            if (_map[y*number_of_col_map+x]==2)
             {
                 x_pointer = x*width_of_segment;
                 y_pointer = y*height_of_segment;
                 //Serial.println("X POINT: "+String(x_pointer)+" Y POINT: "+String(y_pointer));
                 _tft->fillRect(x_pointer, y_pointer,width_of_segment,height_of_segment,converToRGB(200,50,110));
             }
-            else if (_map[y*number_of_col_map + x]==3)
+            else if (_map[y*number_of_col_map + x])
             {
                 x_pointer = x*width_of_segment;
                 y_pointer = y*height_of_segment;
                 //Serial.println("X POINT: "+String(x_pointer)+" Y POINT: "+String(y_pointer));
-                _tft->fillRect(x_pointer, y_pointer,width_of_segment,height_of_segment,converToRGB(76, 15, 217));
+                _tft->fillRect(x_pointer, y_pointer,width_of_segment,height_of_segment,_colour);
             }
         }
     }

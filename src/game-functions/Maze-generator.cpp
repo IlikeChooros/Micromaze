@@ -1,17 +1,13 @@
 #include "Maze-generator.h"
 
-Maze_generator::Maze_generator(uint8_t number_of_c,uint8_t number_of_r, uint8_t *matrix, uint8_t starting_pos)
+void Maze_generator::_init_()
 {
-    _map = matrix;
-    _number_of_cols = number_of_c;
-    _number_of_rows = number_of_r;
-
-    _starting_pos = starting_pos;
-
     four_generators = new LinkedList [4];
     randomSeed(analogRead(UNUSED_PIN_ANALOG));
     finished = false;
 }
+
+
 
 // 0     X     1    X
 // Y ------------------
@@ -27,13 +23,21 @@ Maze_generator::Maze_generator(uint8_t number_of_c,uint8_t number_of_r, uint8_t 
 //            3
 
 
-void Maze_generator::_init_()
+void Maze_generator::create_generators(uint8_t starting_pos, uint8_t *matrix, uint8_t number_of_col, uint8_t number_of_rows)
 {
+    _number_of_cols = number_of_col;
+    _number_of_rows = number_of_rows;
+    _starting_pos = starting_pos;
+    _map = matrix;
 
     Node *head;
 
 // ------------     1   --  UP    ------------
     uint8_t rand_num = random(7, _number_of_cols-6);
+    for(uint8_t i = 0;i<4;i++)
+    {
+        four_generators[i].set_size(1);
+    }
     four_generators[0].add_first(new Point(rand_num,1)); //1
 
     _starting_pos++;
@@ -69,13 +73,14 @@ void Maze_generator::_init_()
     move_wall_right(head, _starting_pos, head->point->y* _number_of_cols + head->point->x);
 }
 
-void Maze_generator::generate_maze(uint8_t num_of_gen)
+void Maze_generator::generate_maze(uint8_t num_of_gen, uint8_t min_dist, uint8_t max_dist)
 {
     _number_of_generations = num_of_gen;
+
     uint8_t i=0;
     for (;i<num_of_gen;)
     {
-        generate_part_maze(i);
+        generate_part_maze(i,min_dist, max_dist);
         i++;
     }
 }
@@ -120,7 +125,7 @@ void Maze_generator::move_wall_down(Node *node, uint8_t dist, uint16_t _pos)
         {
             if (_map[_pos +j + 3*_number_of_cols])
             {
-                if (!j)
+                if (!i)
                 {
                     node->up=false;
                 }
@@ -155,7 +160,7 @@ void Maze_generator::move_wall_up(Node *node, uint8_t dist, uint16_t _pos)
         {
             if (_map[_pos +j - 3*_number_of_cols])
             {
-                if (!j)
+                if (!i)
                 {
                     node->up=false;
                 }
@@ -195,7 +200,7 @@ void Maze_generator::move_wall_left(Node *node, uint8_t dist, uint16_t _pos)
             {
                 if (_map[_pos + j*_number_of_cols - 3]) 
                 {
-                    if (!j)
+                    if (!i)
                     {
                         node->left=false;
                     }
@@ -231,7 +236,7 @@ void Maze_generator::move_wall_right(Node *node, uint8_t dist, uint16_t _pos)
         {
             if (_map[_pos + j*_number_of_cols + 3])
             {
-                if (!j)
+                if (!i)
                 {
                     node->right=false;
                 }
@@ -319,7 +324,7 @@ void Maze_generator::check_possible_moves(uint8_t dir, uint8_t generator, Node* 
     }
 }                                                                           
 
-void Maze_generator::generate_part_maze(uint8_t generation)
+void Maze_generator::generate_part_maze(uint8_t generation, uint8_t min_dist, uint8_t max_dist)
 {
 
     for (uint8_t i = 0; i<4;i++)
@@ -332,10 +337,10 @@ void Maze_generator::generate_part_maze(uint8_t generation)
                 node = node->next;
                 break;
             }
-            //_map[node->point->y*_number_of_cols + node->point->x]=1;
+
             for (uint8_t j=0;j<4;j++)
             {
-                check_possible_moves(j, i,node, random(3,10));
+                check_possible_moves(j, i,node, random(min_dist,max_dist));
             }
             node = node->next;
         }
@@ -363,7 +368,8 @@ void Maze_generator::delete_unused_nodes(uint8_t generation, uint8_t generator)
     
     uint32_t num = to_power_3(generation);
 
-    //Serial.println("GEN: "+ String(generation) + ", generator: "+ String(generator) + " to_power: "+ String(num));
+    Serial.println("Before: "+String(new_size));
+    Serial.println("GEN: "+ String(generation) + ", generator: "+ String(generator) + " to_power: "+ String(num));
     for (uint32_t j = 0; j<num;j++)
     {
         new_size--;
@@ -376,6 +382,9 @@ void Maze_generator::delete_unused_nodes(uint8_t generation, uint8_t generator)
         //Serial.println("    --- deleting point ("+String(temp_point->x)+", "+String(temp_point->y));
         delete temp_point;
     }
+    Serial.println("Succesfully delted: " + String(num));
+    Serial.println("After: "+ String(new_size));
+    Serial.println("");
     four_generators[generator].set_size(new_size);
 }
 

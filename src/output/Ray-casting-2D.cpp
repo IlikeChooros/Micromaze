@@ -20,7 +20,7 @@ void Ray_casting::_init_()
 }
 
 
-void Ray_casting::draw(Point_exetened player_pos, double angle)
+void Ray_casting::draw(Point_extended player_pos, double angle)
 {
     double ray_angle=angle, angle_of_ray=0, starting_angle = check_if_overlow(angle - _angle_of_view/2- _angle_itr*5), ending_angle = check_if_overlow(angle + _angle_of_view/2);
 
@@ -37,7 +37,7 @@ void Ray_casting::draw(Point_exetened player_pos, double angle)
 
 //private
 
-void Ray_casting::ray_cast(double angle, Point_exetened player_pos)
+void Ray_casting::ray_cast(double angle, Point_extended player_pos)
 {
 
     double dist, double_x, double_y;

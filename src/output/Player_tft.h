@@ -3,21 +3,13 @@
 
 #include "Matrix_map.h"
 #include <math.h>
-
-struct Point_exetened
-{
-    uint8_t x;
-    uint8_t y;
-
-    float fl_x;
-    float fl_y;
-};
+#include "../game-functions/Point_extended.h"
 
 class Player_tft
 {
-    Point_exetened _player_coordinates;
-    Point_exetened _prev_player_coordinates;
-    Point_exetened _player_float_coordinates;
+    Point_extended _player_coordinates;
+    Point_extended _prev_player_coordinates;
+    Point_extended _player_float_coordinates;
 
     uint16_t _player_height;
     uint16_t _player_width;
@@ -35,15 +27,15 @@ class Player_tft
     void check_if_overflow();
 
     public:
-    Player_tft(Point_exetened starting_point, TFT_eSPI *tft, Matrix_map *matrix_map);
+    Player_tft(Point_extended starting_point, TFT_eSPI *tft, Matrix_map *matrix_map);
     void _init_();
     void move_left();
     void move_right();
-    Point_exetened move_forward();
-    Point_exetened move_backwards();
+    Point_extended move_forward();
+    Point_extended move_backwards();
     float get_current_angle();
-    Point_exetened get_current_player_position();
-    void set_player_posistion(Point_exetened point);
+    Point_extended get_current_player_position();
+    void set_player_posistion(Point_extended point);
 
 };
 
