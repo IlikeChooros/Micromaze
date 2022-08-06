@@ -6,22 +6,11 @@
 #include "Point_extended.h"
 #include <math.h>
 
-#define DEGREES_45 45/180*3.14
-#define DEGREES_70 80/180*3.14
-#define DEGREES_110 100/180*3.14
-#define DEGREES_135 135/180*3.14
-#define DEGREES_225 225/180*3.14
-#define DEGREES_250 260/180*3.14
-#define DEGREES_290 280/180*3.14
-#define DEGREES_315 315/180*3.14
-#define DEGREES_90 3.14*0.5
-#define DEGREES_180 3.14
-#define DEGREES_270 1.5*3.14
-#define DEGREES_360 2*3.14
-
 class Camera
 {
     TFT_eSPI *_tft;
+
+    Point_extended prev_player_pos;
 
     uint8_t _number_of_cols;
     uint8_t _number_of_rows;
@@ -40,17 +29,41 @@ class Camera
     uint32_t wall_color;
     uint32_t player_color;
     uint32_t player_angle_color;
+
+    float _angle_itr;
+    float _angle_of_view;
+    HSV* colors;
+    uint8_t _ray_lenght;
+
     float _player_angle;
 
     void draw_current_vision(uint8_t x, uint8_t y);
-    void show_current_angle_of_player(uint8_t x_pos, uint8_t y_pos);
+    void show_current_angle_of_player(uint16_t x_pos, uint16_t y_pos);
+
+    float check_if_overflow(double angle);
+    bool check_ray_collision(uint32_t ray_pos);
+    void ray_cast(double angle, Point_extended player_pos);
+    void draw_current_vision_with_ray_cast(Point_extended player_pos, Point_extended ray_pos);
+
+    uint16_t camera_x(uint16_t x);
+    uint16_t camera_y(uint16_t y);
+
+    uint16_t player_x(uint16_t x);
+    uint16_t player_y(uint16_t y);
+    
+
+    uint32_t convert_to_RGB(uint8_t r, uint8_t g, uint8_t b);
+    uint32_t HSV_to_RGB(HSV color_hsv, uint8_t dist);
 
     public:
     Camera(TFT_eSPI *tft);
     void load_map(uint8_t *matrix, uint8_t number_of_cols, uint8_t number_of_rows, uint8_t width_of_vision, uint8_t height_of_vision, uint32_t wall_color);
-    void load_player(uint32_t player_color, uint32_t player_angle_color, float angle);
+    void load_player(uint32_t player_color, uint32_t player_angle_color, float player_angle, Point_extended player_pos);
+    void load_ray_casting(float angle_itr, float angle_of_view,uint8_t ray_lenght ,HSV *colors);
     void draw_vision(Point_extended player_pos);
-    void draw_player(Point_extended player_pos, float angle);
+    void draw_player(Point_extended player_pos, float player_angle);
+    void draw_vision_with_ray_cast(float player_angle ,Point_extended player_pos);
+    void clear_prev_player_position(Point_extended player_pos);
 };
 
 

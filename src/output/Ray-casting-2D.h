@@ -4,13 +4,6 @@
 #include "Matrix_map.h"
 #include "Player_tft.h"
 
-struct HSV
-{
-    float hue;
-    float satrutaion;
-    float value;
-};
-
 class Ray_casting
 {
     Point_extended ray_position;

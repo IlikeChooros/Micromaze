@@ -1,7 +1,7 @@
 #include "src/input/Joystick_esp.h"
 #include "src/output/Matrix_map.h"
 #include "src/output/Player_tft.h"
-#include "src/output/Ray-casting-2D.h"
+// #include "src/output/Ray-casting-2D.h"
 #include "src/output/Level_maps.h"
 #include "src/game-functions/Door.h"
 #include "src/game-functions/Maze-generator.h"
@@ -38,7 +38,7 @@ HSV color[]={ // 0 -> wall, 1-> door color
     {170.0,100.0,100.0}
 };
 
-Ray_casting ray_casting (&tft, &world_map, 10, 0.035, 2.24, color);
+//Ray_casting ray_casting (&tft, &world_map, 10, 0.035, 2.24, color);
 
 Door door(&tft, &world_map);
 
@@ -131,8 +131,10 @@ void down()
         }
     }
 
-    player_vision.draw_player(player.get_current_player_position(), player.get_current_angle());
     player_vision.draw_vision(player.get_current_player_position());
+    player_vision.draw_vision_with_ray_cast(player.get_current_angle(), player.get_current_player_position());
+    player_vision.clear_prev_player_position(player.get_current_player_position());
+    player_vision.draw_player(player.get_current_player_position(), player.get_current_angle());
     //ray_casting.draw(player.get_current_player_position(), player.get_current_angle());
 }
 void up()
@@ -151,20 +153,24 @@ void up()
         }
     }
 
-    player_vision.draw_player(player.get_current_player_position(), player.get_current_angle());
     player_vision.draw_vision(player.get_current_player_position());
+    player_vision.draw_vision_with_ray_cast(player.get_current_angle(), player.get_current_player_position());
+    player_vision.clear_prev_player_position(player.get_current_player_position());
+    player_vision.draw_player(player.get_current_player_position(), player.get_current_angle());
     //ray_casting.draw(player.get_current_player_position(), player.get_current_angle());
 }
 void left()
 {
     player.move_left();
     //ray_casting.draw(player.get_current_player_position(), player.get_current_angle());
+    player_vision.draw_vision_with_ray_cast(player.get_current_angle(), player.get_current_player_position());
     player_vision.draw_player(player.get_current_player_position(), player.get_current_angle());
 }
 void right()
 {
     player.move_right();
     //ray_casting.draw(player.get_current_player_position(), player.get_current_angle());
+    player_vision.draw_vision_with_ray_cast(player.get_current_angle(), player.get_current_player_position());
     player_vision.draw_player(player.get_current_player_position(), player.get_current_angle());
 }
 
@@ -189,12 +195,12 @@ void setup()
 
     door.generate_door(9);
 
-    world_map.draw_map();
+    //world_map.draw_map();
 
     Point_extended test_point = {30,30,0,0};
 
     player_vision.load_map(sec_map,NUMBER_OF_COL_MAP*2, NUMBER_OF_ROWS_MAP*2, NUMBER_OF_COL_MAP, NUMBER_OF_ROWS_MAP,convert_to_RGB(100, 28, 173));
-    
+    player_vision.load_ray_casting(0.035, 2.1, 10, color);
 
     for (uint8_t y=NUMBER_OF_ROWS_MAP-5;y<NUMBER_OF_ROWS_MAP+5;y++)
     {
@@ -209,27 +215,9 @@ void setup()
         }
     }
 
-    for (int8_t x=NUMBER_OF_COL_MAP*2-1;x>=0;x--)
-    {
-        for (uint8_t y=0;y<NUMBER_OF_COL_MAP*2;y++)
-        {
-            if(test_point.y == y && test_point.x==x)
-            {
-                Serial.print("O");
-            }
-            else if (sec_map[y*NUMBER_OF_COL_MAP*2 + x])
-            {
-                Serial.print("#");
-            }
-            else{
-                Serial.print(" ");
-            }
-        }
-        Serial.println("");
-    }
-
     player._init_();
-    player_vision.load_player(convert_to_RGB(176, 168, 111),convert_to_RGB(99, 5, 14), player.get_current_angle());
+    player_vision.load_player(convert_to_RGB(176, 168, 111),convert_to_RGB(99, 5, 14), player.get_current_angle(), player.get_current_player_position());
+
     //ray_casting._init_();
 
     //ray_casting.draw(player.get_current_player_position(), player.get_current_angle());

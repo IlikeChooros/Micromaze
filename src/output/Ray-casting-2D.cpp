@@ -22,7 +22,7 @@ void Ray_casting::_init_()
 
 void Ray_casting::draw(Point_extended player_pos, double angle)
 {
-    double ray_angle=angle, angle_of_ray=0, starting_angle = check_if_overlow(angle - _angle_of_view/2- _angle_itr*5), ending_angle = check_if_overlow(angle + _angle_of_view/2);
+    double angle_of_ray=0, starting_angle = check_if_overlow(angle - _angle_of_view/2- _angle_itr*5), ending_angle = check_if_overlow(angle + _angle_of_view/2);
 
     //_tft->fillScreen(TFT_BLACK); // COMMENT FOR 2D MODE
 
@@ -79,7 +79,7 @@ void Ray_casting::ray_cast(double angle, Point_extended player_pos)
             
             //Serial.println("X POINT: "+String(x_pointer)+" Y POINT: "+String(y_pointer));
 
-            _tft->fillRect(ray_position.x*width_of_segment, ray_position.y*height_of_segment,width_of_segment,height_of_segment,HSV_to_RGB(_colors[color_idx], (uint8_t) dist));
+            _tft->fillRect(ray_position.x*width_of_segment, ray_position.y*height_of_segment,width_of_segment,height_of_segment,HSV_to_RGB(_colors[color_idx], dist));
 
             return;
         }
