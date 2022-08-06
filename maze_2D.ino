@@ -5,9 +5,9 @@
 #include "src/output/Level_maps.h"
 #include "src/game-functions/Door.h"
 #include "src/game-functions/Maze-generator.h"
-#include "src/game-functions/LinkedList.h"
-#include "src/game-functions/Point.h"
-#include "src/game-functions/Point_extended.h"
+#include "src/data-sturctures/LinkedList.h"
+#include "src/data-sturctures/Point.h"
+#include "src/data-sturctures/Point_extended.h"
 #include "src/game-functions/Camera.h"
 
 #include <TFT_eSPI.h> 

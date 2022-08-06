@@ -3,7 +3,7 @@
 
 #include "Matrix_map.h"
 #include <math.h>
-#include "../game-functions/Point_extended.h"
+#include "../data-sturctures/Point_extended.h"
 
 class Player_tft
 {

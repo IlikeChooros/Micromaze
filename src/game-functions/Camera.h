@@ -3,7 +3,7 @@
 
 #include <TFT_eSPI.h> 
 #include <SPI.h>
-#include "Point_extended.h"
+#include "../data-sturctures/Point_extended.h"
 #include <math.h>
 
 class Camera

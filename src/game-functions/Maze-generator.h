@@ -1,7 +1,7 @@
 #ifndef _MAZE_GENERATOR_
 #define _MAZE_GENERATOR_
 
-#include "LinkedList.h"
+#include "../data-sturctures/LinkedList.h"
 
 #define UNUSED_PIN_ANALOG 26
 
