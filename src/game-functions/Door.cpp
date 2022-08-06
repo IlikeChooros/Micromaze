@@ -120,7 +120,7 @@ void Door::generate_door(uint8_t approx)
                 distance_from_node = round(distance_from_node);
                 if (dist+approx>= distance_from_node && dist-approx<=distance_from_node && current_dir == destinated_dir)
                 {
-                    matrix[y*num_of_cols + x]=4;
+                    matrix[y*num_of_cols + x]=3;
                     num_of_doors_nearby[0] = doors_nearby(x-1, y-1, matrix); // TOP LEFT
                     num_of_doors_nearby[1] = doors_nearby(x-1, y+1, matrix); // TOP RIGHT
                     num_of_doors_nearby[2] = doors_nearby(x+1, y-1, matrix); // DOWN LEFT

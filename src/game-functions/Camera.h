@@ -42,7 +42,7 @@ class Camera
 
     float check_if_overflow(double angle);
     bool check_ray_collision(uint32_t ray_pos);
-    void ray_cast(double angle, Point_extended player_pos);
+    void ray_cast(double angle, Point_extended player_pos, int16_t vector_x, int16_t vector_y);
     void draw_current_vision_with_ray_cast(Point_extended player_pos, Point_extended ray_pos);
 
     uint16_t camera_x(uint16_t x);

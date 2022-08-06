@@ -57,14 +57,15 @@ void Camera::draw_player(Point_extended player_pos, float angle)
 void Camera::draw_vision_with_ray_cast(float angle, Point_extended player_pos)
 {
     double angle_of_ray = 0,
-    starting_angle = check_if_overflow(angle - _angle_of_view/2),
-    ending_angle = check_if_overflow(angle + _angle_of_view/2);
+    starting_angle = check_if_overflow(angle - _angle_of_view/2);
 
+    //camera_x(player_pos.x) - player_pos.x;
+    //camera_y(player_pos.y) - player_pos.y;
 
     for (; angle_of_ray<_angle_of_view; angle_of_ray+=_angle_itr)
     {
         starting_angle = check_if_overflow(starting_angle + _angle_itr);
-        ray_cast(starting_angle, player_pos);
+        ray_cast(starting_angle, player_pos,  player_pos.x - camera_x(player_pos.x), player_pos.y - camera_y(player_pos.y));
     }
 }
 
@@ -219,7 +220,7 @@ void Camera::draw_current_vision(uint8_t x, uint8_t y)
     }
 }
 
-void Camera::ray_cast(double angle, Point_extended player_pos)
+void Camera::ray_cast(double angle, Point_extended player_pos, int16_t vector_x, int16_t vector_y)
 {
     double dist,x,y;
     uint8_t color_idx;
@@ -243,30 +244,26 @@ void Camera::ray_cast(double angle, Point_extended player_pos)
         ray_pos = ray_position.y * _number_of_cols + ray_position.x;
         if (check_ray_collision(ray_pos))
         {
-            //color_idx = _map[ray_pos] - 1;
+            color_idx = _map[ray_pos] - 1;
             x = ray_position.x - player_pos.x;
-            x*=x;
 
             y = ray_position.y- player_pos.y;
-            y*=y;
 
-            dist = sqrt(x+y);
+            dist = sqrt(x*x+y*y);
 
-            if ((x_pos<0 || x_pos>_width_of_vision) || (y_pos <0 || y_pos > _height_of_vision)) // out of player vision
+            x+=x_margin;
+            y+=y_margin;
+
+            if ((x<0 || x>_width_of_vision) || (y <0 || y > _height_of_vision)) // out of player vision
             {
                 return;
             }
 
-            draw_current_vision_with_ray_cast(player_pos, ray_position);
+            _tft->fillRect((x+vector_x)*scale_x,(y+vector_y)*scale_y,scale_x, scale_y, HSV_to_RGB(colors[color_idx], dist));
 
             return;
         }
     }
-}
-
-void Camera::draw_current_vision_with_ray_cast(Point_extended player_pos, Point_extended ray_pos)
-{
-
 }
 
 bool Camera::check_ray_collision(uint32_t ray_pos)

@@ -29,7 +29,7 @@ void Player_tft::_init_()
 void Player_tft::move_left()
 {
     //Serial.print(" CHANGING ANGLE (LEFT) - : ");
-    angle+=0.15;
+    angle+=0.3;
     check_if_overflow();
 
     //Serial.println(String(angle));
@@ -38,7 +38,7 @@ void Player_tft::move_left()
 void Player_tft::move_right()
 {
     //Serial.print(" CHANGING ANGLE (RIGHT) + : ");
-    angle-=0.15;
+    angle-=0.3;
     check_if_overflow();
 
     //Serial.println(String(angle));
@@ -49,7 +49,7 @@ Point_extended Player_tft::move_forward()
     //Serial.print("MOVE FORWARD curr_x: "+String(_player_coordinates.x)+" curr_y"+String(_player_coordinates.y)+" TO -> ");
     float x,y;
 
-    Point_extended collision_point = {-1,-1,-1,-1};
+    Point_extended collision_point = {0,0,0,0};
 
     y = cos(angle); 
     x = sin(angle);
@@ -91,7 +91,7 @@ Point_extended Player_tft::move_backwards()
 {
     float x,y;
 
-    Point_extended collision_point = {-1,-1,-1,-1};
+    Point_extended collision_point = {0,0,0,0};
 
     y = cos(angle); 
     x = sin(angle);
