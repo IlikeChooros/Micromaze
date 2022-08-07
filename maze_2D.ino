@@ -140,10 +140,10 @@ void ending_scene()
     tft.setRotation(1);
     tft.setTextSize(1);
     tft.println("Your Score: ");
-    tft.println(" --- Time spent looking at map: "+String(map_time/1000));
-    tft.println(" --- Time spent looking for exit: "+String(action_time/1000));
+    tft.println(" --- Time spent looking at map: "+String(map_time/1000) + " s.");
+    tft.println(" --- Time spent looking for exit: "+String(action_time/1000)+ " s.");
 
-    score = action_time/200;
+    score = action_time/100;
     score += map_time/20;
     text_color.hue += score/5;
     text_color.hue = text_color.hue > 360 ? 360: text_color.hue;
@@ -174,7 +174,6 @@ void ending_scene()
         else{
             gradient_letters("AMAZING!0", text_color.hue, 23);
         }
-
     }
     else if (score<450)
     {
@@ -298,8 +297,8 @@ void setup()
     tft.init();
 
     maze_gen._init_();
-    maze_gen.create_generators(5, sec_map,number_of_cols,number_of_rows);
-    maze_gen.generate_maze(7,5,13);
+    maze_gen.create_generators(7, sec_map,number_of_cols,number_of_rows);
+    maze_gen.generate_maze(6,5,13);
 
     world_map.set_map(sec_map,number_of_rows,number_of_cols, 229,180,22);
     tft.fillScreen(TFT_BLACK);
