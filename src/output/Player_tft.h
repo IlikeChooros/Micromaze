@@ -3,13 +3,19 @@
 
 #include "Matrix_map.h"
 #include <math.h>
-#include "../data-sturctures/Point_extended.h"
+#include "../data-sturctures/Point.h"
+
+enum Dir{
+    UP,
+    DOWN,
+    LEFT,
+    RIGHT
+};
 
 class Player_tft
 {
-    Point_extended _player_coordinates;
-    Point_extended _prev_player_coordinates;
-    Point_extended _player_float_coordinates;
+    Point _player_coordinates;
+    Point _prev_player_coordinates;
 
     uint16_t _player_height;
     uint16_t _player_width;
@@ -27,15 +33,11 @@ class Player_tft
     void check_if_overflow();
 
     public:
-    Player_tft(Point_extended starting_point, TFT_eSPI *tft, Matrix_map *matrix_map);
+    Player_tft(TFT_eSPI *tft, Matrix_map *matrix_map);
     void _init_();
-    void move_left();
-    void move_right();
-    Point_extended move_forward();
-    Point_extended move_backwards();
-    float get_current_angle();
-    Point_extended get_current_player_position();
-    void set_player_posistion(Point_extended point);
+    Point move(uint8_t dir);
+    Point get_current_player_position();
+    void set_player_posistion(Point point);
 
 };
 

@@ -31,7 +31,7 @@ class Door
     public:
     Door(TFT_eSPI *tft, Matrix_map *_matrix_map);
     void load_map(uint8_t num_of_doors);
-    bool check_collision_with_player(Point_extended player_pos);
+    bool check_collision_with_player(Point player_pos);
     void clear_map();
     void generate_door(uint8_t approx);
 };

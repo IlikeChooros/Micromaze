@@ -21,7 +21,7 @@ void Camera::load_map(uint8_t *matrix, uint8_t number_of_cols, uint8_t number_of
     scale_y = _tft->height()/(_height_of_vision); //320/_height
 }
 
-void Camera::load_player(uint32_t player_c, uint32_t angle_color, float angle, Point_extended player_pos)
+void Camera::load_player(uint32_t player_c, uint32_t angle_color, float angle, Point player_pos)
 {
     _player_angle = angle;
     player_color = player_c;
@@ -46,12 +46,12 @@ void Camera::load_ray_casting(float angle_itr, float angle_of_view, uint8_t ray_
     }
 }
 
-void Camera::draw_vision(Point_extended player_pos)
+void Camera::draw_vision(Point player_pos)
 {
     draw_current_vision(camera_x(player_pos.x),camera_y(player_pos.y));
 }
 
-void Camera::draw_player(Point_extended player_pos, float angle)
+void Camera::draw_player(Point player_pos, float angle)
 {
     uint16_t x_pos, y_pos;
 
@@ -60,10 +60,10 @@ void Camera::draw_player(Point_extended player_pos, float angle)
     _player_angle = angle;
 
     _tft->fillRect(x_pos*scale_x, y_pos*scale_y, scale_x, scale_y, player_color);
-    show_current_angle_of_player(x_pos*scale_x, y_pos*scale_y);
+    //show_current_angle_of_player(x_pos*scale_x, y_pos*scale_y);
 }
 
-void Camera::draw_vision_with_ray_cast(float angle, Point_extended player_pos)
+void Camera::draw_vision_with_ray_cast(float angle, Point player_pos)
 {
     double angle_of_ray = 0,
     starting_angle = check_if_overflow(angle - _angle_of_view/2);
@@ -78,7 +78,7 @@ void Camera::draw_vision_with_ray_cast(float angle, Point_extended player_pos)
     }
 }
 
-void Camera::clear_prev_player_position(Point_extended player_pos)
+void Camera::clear_prev_player_position(Point player_pos)
 {
     _tft->fillRect(player_x(prev_player_pos.x)*scale_x, player_y(prev_player_pos.y)*scale_y, scale_x, scale_y, TFT_BLACK);
     prev_player_pos = player_pos;
@@ -229,7 +229,7 @@ void Camera::draw_current_vision(uint8_t x, uint8_t y)
     }
 }
 
-void Camera::ray_cast(double angle, Point_extended player_pos, int16_t vector_x, int16_t vector_y)
+void Camera::ray_cast(double angle, Point player_pos, int16_t vector_x, int16_t vector_y)
 {
     double dist,x,y;
     uint8_t color_idx;
@@ -238,7 +238,8 @@ void Camera::ray_cast(double angle, Point_extended player_pos, int16_t vector_x,
 
     uint32_t ray_pos;
 
-    ray_position = player_pos;
+    ray_position.x = player_pos.x;
+    ray_position.y = player_pos.y;
     ray_position.fl_x = player_pos.x;
     ray_position.fl_y = player_pos.y;
 

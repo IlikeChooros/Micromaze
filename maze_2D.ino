@@ -26,10 +26,6 @@ Joystick joystick(ANALOG_X, ANALOG_Y);
 
 Matrix_map world_map(&tft);
 
-Point_extended starting_pos_player = {12,3,10.0,3.0};
-
-
-Player_tft player(starting_pos_player,&tft,&world_map);
 
 HSV color[]={ // 0 -> wall, 1-> door color, 3 -> node color (wall)
     {190.0,100.0,100.0},
@@ -49,7 +45,7 @@ uint8_t *all_maps[2]={
 
 uint8_t number_of_doors[]={4,4};
 
-Point_extended collision_point;
+Point collision_point;
 
 Maze_generator maze_gen;
 
@@ -59,6 +55,10 @@ bool timer_started = false;
 double map_time=0;
 double action_time=0;
 HSV text_color = {100, 100, 100};
+
+Player_tft player(&tft,&world_map);
+
+Dir current_dir=RIGHT;
 
 uint32_t convert_to_RGB(uint8_t r, uint8_t g, uint8_t b)
 {
@@ -243,37 +243,32 @@ void ending_scene()
 
 void down()
 {
-    if(!timer_started)
-    {
-        map_time = millis();
-        timer_started = true;
-    }
-    tft.fillScreen(TFT_BLACK);
-    collision_point = player.move_backwards();
-    if (collision_point.x != 0)
-    {
-        if (door.check_collision_with_player(collision_point))
-        {
-            tft.fillScreen(TFT_BLACK);
-            action_time = millis();
-            ending_scene();
-        }
-    }
-
-    //player_vision.draw_vision(player.get_current_player_position());
-    player_vision.draw_vision_with_ray_cast(player.get_current_angle(), player.get_current_player_position());
-    player_vision.clear_prev_player_position(player.get_current_player_position());
-    player_vision.draw_player(player.get_current_player_position(), player.get_current_angle());
+    move(DOWN);
 }
 void up()
 {
+    move(UP);
+}
+void left()
+{
+    move(LEFT);
+}
+
+void right()
+{
+    move(RIGHT);
+}
+
+
+void move(uint8_t dir)
+{
     if(!timer_started)
     {
         map_time = millis();
         timer_started = true;
     }
     tft.fillScreen(TFT_BLACK);
-    collision_point = player.move_forward();
+    collision_point = player.move(dir);
     if (collision_point.x != 0)
     {
         if (door.check_collision_with_player(collision_point))
@@ -283,31 +278,10 @@ void up()
             ending_scene();
         }
     }
-
     //player_vision.draw_vision(player.get_current_player_position());
-    player_vision.draw_vision_with_ray_cast(player.get_current_angle(), player.get_current_player_position());
+    player_vision.draw_vision_with_ray_cast(0, player.get_current_player_position());
     player_vision.clear_prev_player_position(player.get_current_player_position());
-    player_vision.draw_player(player.get_current_player_position(), player.get_current_angle());
-}
-void left()
-{
-    if(!timer_started)
-    {
-        map_time = millis();
-        timer_started = true;
-    }
-    player.move_left();
-    player_vision.draw_player(player.get_current_player_position(), player.get_current_angle());
-}
-void right()
-{
-    if(!timer_started)
-    {
-        map_time = millis();
-        timer_started = true;
-    }
-    player.move_right();
-    player_vision.draw_player(player.get_current_player_position(), player.get_current_angle());
+    player_vision.draw_player(player.get_current_player_position(), 0);
 }
 
 void setup()
@@ -325,14 +299,14 @@ void setup()
 
     maze_gen._init_();
     maze_gen.create_generators(5, sec_map,number_of_cols,number_of_rows);
-    maze_gen.generate_maze(6,5,13);
+    maze_gen.generate_maze(7,5,13);
 
     world_map.set_map(sec_map,number_of_rows,number_of_cols, 229,180,22);
     tft.fillScreen(TFT_BLACK);
 
     door.generate_door(9);
 
-    Point_extended test_point = {30,30,0,0};
+    Point test_point (30,30);
 
     player_vision.load_map(sec_map,number_of_cols, number_of_rows, NUMBER_OF_COL_MAP, NUMBER_OF_ROWS_MAP,convert_to_RGB(100, 28, 173));
     player_vision.load_ray_casting(0.035, 6.28, 10, color);
@@ -347,7 +321,6 @@ void setup()
             {
                 test_point.x=x;
                 test_point.y=y;
-                player.set_player_posistion(test_point);
                 tft.fillRect(x*width_of_segment, y*height_of_segment, width_of_segment, height_of_segment, TFT_WHITE);
                 goto jump;
             }
@@ -355,8 +328,9 @@ void setup()
     }
 
 jump:
+    player.set_player_posistion(test_point);
     player._init_();
-    player_vision.load_player(convert_to_RGB(176, 168, 111),convert_to_RGB(99, 5, 14), player.get_current_angle(), player.get_current_player_position());
+    player_vision.load_player(convert_to_RGB(176, 168, 111),convert_to_RGB(99, 5, 14), 0, player.get_current_player_position());
     world_map.draw_map();
     map_time = millis();
 }

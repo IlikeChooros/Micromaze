@@ -59,16 +59,14 @@ void Door::generate_door(uint8_t approx)
     }
 
     _number_of_doors = 1;
-    uint16_t *door_pos = new uint16_t [1];
+    uint16_t *door_pos = new uint16_t [_number_of_doors];
     num_of_cols = _map->get_current_map_cols();
     num_of_rows = _map->get_current_map_rows();
 
     uint8_t dist = random(5,11);
     double distance_from_node;
-    int32_t _x;
-    int32_t _y;
-    uint16_t point_of_refrence_x;
-    uint16_t point_of_refrence_y;
+    int32_t _x,_y;
+    uint16_t point_of_refrence_x,point_of_refrence_y;
 
     uint16_t max_number_of_doors=1;
     uint16_t max_coordinates[2];
@@ -164,7 +162,7 @@ void Door::clear_map()
     delete door_positions;
 }
 
-bool Door::check_collision_with_player(Point_extended player_pos)
+bool Door::check_collision_with_player(Point player_pos)
 {
     for (uint8_t i = 0; i<_number_of_doors; i++)
     {
