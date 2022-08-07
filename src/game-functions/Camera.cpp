@@ -35,6 +35,15 @@ void Camera::load_ray_casting(float angle_itr, float angle_of_view, uint8_t ray_
     this->_angle_itr = angle_itr;
     this->_angle_of_view = angle_of_view;
     this->_ray_lenght = ray_lenght;
+    all_gradient_colors = new uint32_t* [3]; // there are 3 types of possible obstacles, walls, doors, nodes(walls), in this order with index 0,1,2
+    for (uint8_t j=0;j<3;j++)
+    {   
+        all_gradient_colors[j] = new uint32_t [ray_lenght+1];
+        for (uint i=0;i<ray_lenght+1;i++)
+        {
+            all_gradient_colors[j][i] = HSV_to_RGB(this->colors[j],i);
+        }
+    }
 }
 
 void Camera::draw_vision(Point_extended player_pos)
@@ -254,12 +263,12 @@ void Camera::ray_cast(double angle, Point_extended player_pos, int16_t vector_x,
             x+=x_margin;
             y+=y_margin;
 
-            if ((x<0 || x>_width_of_vision) || (y <0 || y > _height_of_vision)) // out of player vision
-            {
-                return;
-            }
+            // if ((x<0 || x>_width_of_vision) || (y <0 || y > _height_of_vision)) // out of player vision
+            // {
+            //     return;
+            // }
 
-            _tft->fillRect((x+vector_x)*scale_x,(y+vector_y)*scale_y,scale_x, scale_y, HSV_to_RGB(colors[color_idx], dist));
+            _tft->fillRect((x+vector_x)*scale_x,(y+vector_y)*scale_y,scale_x, scale_y, all_gradient_colors[color_idx][(uint8_t) dist]);
 
             return;
         }

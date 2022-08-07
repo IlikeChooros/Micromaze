@@ -37,6 +37,9 @@ class Camera
 
     float _player_angle;
 
+    uint32_t **all_gradient_colors;
+
+
     void draw_current_vision(uint8_t x, uint8_t y);
     void show_current_angle_of_player(uint16_t x_pos, uint16_t y_pos);
 
