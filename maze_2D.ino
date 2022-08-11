@@ -1,13 +1,14 @@
 #include "src/input/Joystick_esp.h"
+#include "src/input/Button.h"
 #include "src/output/Matrix_map.h"
 #include "src/output/Player_tft.h"
 #include "src/output/Level_maps.h"
 #include "src/game-functions/Door.h"
 #include "src/game-functions/Maze-generator.h"
+#include "src/game-functions/Camera.h"
 #include "src/data-sturctures/LinkedList.h"
 #include "src/data-sturctures/Point.h"
 #include "src/data-sturctures/Point_extended.h"
-#include "src/game-functions/Camera.h"
 
 #include <TFT_eSPI.h> 
 #include <SPI.h>
@@ -19,20 +20,21 @@
 #define NUMBER_OF_ROWS_MAP 32
 #define NUMBER_OF_COL_MAP 24
 
+uint8_t number_of_cols = NUMBER_OF_COL_MAP*2;
+uint8_t number_of_rows = NUMBER_OF_ROWS_MAP*2;
+
 TFT_eSPI tft = TFT_eSPI();
 
 Joystick joystick(ANALOG_X, ANALOG_Y);
-
+Button button_joystick(BUTTON_PIN);
 
 Matrix_map world_map(&tft);
-
 
 HSV color[]={ // 0 -> wall, 1-> door color, 3 -> node color (wall)
     {190.0,100.0,100.0},
     {40.0,100.0,100.0},
     {190.0,100.0,100.0}
 };
-
 
 Door door(&tft, &world_map);
 
@@ -43,9 +45,8 @@ uint8_t *all_maps[2]={
     second_map
 };
 
-uint8_t number_of_doors[]={4,4};
-
 Point collision_point;
+Point starting_point (0,0);
 
 Maze_generator maze_gen;
 
@@ -54,6 +55,12 @@ Camera player_vision(&tft);
 bool timer_started = false;
 double map_time=0;
 double action_time=0;
+uint8_t button_pressed=0;
+uint8_t completed_game_with_high_score=0;
+Wall_dir door_dir;
+
+bool finished = true;
+
 HSV text_color = {100, 100, 100};
 
 Player_tft player(&tft,&world_map);
@@ -117,7 +124,97 @@ uint32_t HSV_to_RGB(HSV color_hsv)
     );
 }
 
-void gradient_letters(const char str [], uint8_t starting_hue, uint8_t itr_val)
+bool set_starting_position(uint8_t y, uint8_t x_margin)
+{
+    uint8_t width_of_segment = tft.width()/(number_of_cols);
+    uint8_t height_of_segment = tft.height()/(number_of_rows);
+
+    for (uint8_t x = x_margin - 2;x<x_margin +3;x++)
+    {
+        if (sec_map[y*number_of_cols+x]==0)
+        {
+            starting_point.x=x;
+            starting_point.y=y;
+            tft.fillRect(x*width_of_segment, y*height_of_segment, width_of_segment, height_of_segment, TFT_WHITE);
+            return true;
+        }
+    }
+    return false;
+}
+
+void show_vision()
+{
+    button_pressed++;
+    player_vision.draw_vision(player.get_current_player_position());
+}
+
+void reset()
+{
+    button_joystick.on_press(show_vision);
+
+    tft.fillScreen(TFT_BLACK);
+
+    for (uint8_t y = 1;y<number_of_rows-1;y++)
+    {
+        for(uint8_t x=1;x<number_of_cols-1;x++)
+        {
+            sec_map[y*number_of_cols+x]=0;
+        }
+    }
+
+    maze_gen.create_generators(5,sec_map,number_of_cols,number_of_rows);
+    maze_gen.generate_maze(6,5,13);
+    maze_gen.delte_nodes();
+
+
+    door.clear_map();
+    door_dir = door.generate_door(9);
+
+    uint8_t x_margin = number_of_cols/2;
+    uint8_t y_margin = number_of_rows/2;
+
+    if (completed_game_with_high_score>1)
+    {
+        switch (door_dir)
+        {
+            case TOP_L:
+                x_margin = 3;  // DOWN_R
+                y_margin = number_of_rows - 4;
+                break;
+            case TOP_R:
+                x_margin = 3; // DOWN_L
+                y_margin = 3;
+                break;
+            case DOWN_L:
+                x_margin = number_of_cols - 4; // TOP_R
+                y_margin = number_of_rows - 4;
+                break;
+            case DOWN_R:
+                x_margin = number_of_cols - 4; // TOP_L
+                y_margin = 3;
+                break;
+            default:
+                break;
+        }
+    }
+
+    for (uint8_t y=y_margin-2;y<y_margin+3;y++)
+    {
+        if (set_starting_position(y, x_margin))
+        {
+            break;
+        }
+    }
+    player.set_player_posistion(starting_point);
+    world_map.draw_map();
+    map_time = millis();
+    button_pressed=0;
+    finished = false;
+    timer_started = false;
+}
+
+
+void gradient_letters(const char str [], uint8_t starting_hue, float itr_val)
 {
     text_color.hue = starting_hue;
     uint8_t index=0;
@@ -125,6 +222,7 @@ void gradient_letters(const char str [], uint8_t starting_hue, uint8_t itr_val)
     {
         tft.print(str[index]);
         text_color.hue+=itr_val;
+        text_color.hue = fmod(text_color.hue,360);
         tft.setTextColor(HSV_to_RGB(text_color));
         index++;
     }
@@ -133,19 +231,42 @@ void gradient_letters(const char str [], uint8_t starting_hue, uint8_t itr_val)
 
 void ending_scene()
 {
-    float score;
+    float score=0;
+    tft.setCursor(0,0);
     tft.fillScreen(TFT_BLACK);
-    tft.setCursor(40,20);
     tft.setTextFont(2);
     tft.setRotation(1);
     tft.setTextSize(1);
-    tft.println("Your Score: ");
+    tft.println("       Your Score: ");
     tft.println(" --- Time spent looking at map: "+String(map_time/1000) + " s.");
-    tft.println(" --- Time spent looking for exit: "+String(action_time/1000)+ " s.");
+    tft.println(" --- Time spent looking for exit: "+String(action_time/1000 - map_time/1000)+ " s.");
+    tft.println(" --- Button pressed: "+String(button_pressed)+ " times.");
 
-    score = action_time/100;
-    score += map_time/20;
+    if (completed_game_with_high_score>1)
+    {
+        score = action_time/140;
+        score += map_time/30;
+    }
+    else{
+        if (button_pressed>0)
+        {
+            score+=200;
+        }
+        score = action_time/80;
+        score += map_time/15;
+    }
+
+
+    score += button_pressed*100;
     text_color.hue += score/5;
+
+    if (score<450)
+    {
+        completed_game_with_high_score++;
+    }
+    else{
+        completed_game_with_high_score = completed_game_with_high_score>0 ? completed_game_with_high_score-1:0;
+    }
     text_color.hue = text_color.hue > 360 ? 360: text_color.hue;
 
     tft.setTextColor(HSV_to_RGB(text_color));
@@ -156,44 +277,40 @@ void ending_scene()
     tft.setTextSize(1);
 
     uint8_t rand_num;
-    if (score<200)
+    if (score<=200)
     {
-        gradient_letters("FABULOUS!0", text_color.hue, 30);
+        gradient_letters("YOU ARE FABULOUS!0", text_color.hue, 30);
     }
-    else if (score<350)
+    else if (score<=350)
     {
         rand_num = random(3);
         if (rand_num==0)
         {
-            gradient_letters("JUST BUILT DIFFERENT0", text_color.hue, 15);
+            gradient_letters("JUST BUILT DIFFERENT0", text_color.hue, 20);
         }
         else if(rand_num==1)
         {
-            gradient_letters("NO OFFENSE, JUST SUPERIOR HUMAN BEING :^)0",text_color.hue, 4);
+            gradient_letters("NO OFFENSE, JUST SUPERIOR HUMAN BEING :^)0",text_color.hue, 9.5);
         }
         else{
-            gradient_letters("AMAZING!0", text_color.hue, 23);
+            gradient_letters("THAT WAS AMAZING!0", text_color.hue, 23);
         }
     }
-    else if (score<450)
+    else if (score<=450)
     {
-        gradient_letters("IMPRESSIVE0",text_color.hue, 18);
+        gradient_letters("Great performance.0",text_color.hue, 8);
     }
     else if (score<550)
     {
-        gradient_letters("Indeed great performance0",text_color.hue, 5);
+        gradient_letters("Mediocare performance.0",text_color.hue, 5);
     }
     else if (score<650)
     {
-        gradient_letters("Nice job0", text_color.hue, 10);
+        gradient_letters("Pathetic. :^)0",text_color.hue,7);
     }
     else if (score<850)
     {
-        gradient_letters("Mediocare. :^)0",text_color.hue,7);
-    }
-    else if (score<950)
-    {
-        gradient_letters("That was something, I guess...0",text_color.hue,3);
+        gradient_letters("That was something, I guess...0",text_color.hue,5);
     }
     else
     {
@@ -235,7 +352,6 @@ void ending_scene()
     tft.setTextColor(HSV_to_RGB(text_color)) ;tft.print(" 1400+");
 
     tft.setRotation(0);
-    delay(5000);
     text_color.hue = 100;
     tft.setTextColor(TFT_WHITE);
 }
@@ -263,8 +379,9 @@ void move(uint8_t dir)
 {
     if(!timer_started)
     {
-        map_time = millis();
+        map_time = millis() - map_time;
         timer_started = true;
+        action_time = millis();
     }
     tft.fillScreen(TFT_BLACK);
     collision_point = player.move(dir);
@@ -273,20 +390,84 @@ void move(uint8_t dir)
         if (door.check_collision_with_player(collision_point))
         {
             tft.fillScreen(TFT_BLACK);
-            action_time = millis();
+            action_time = millis() - action_time;
+            button_joystick.on_press(reset);
+            finished = true;
             ending_scene();
+            return;
         }
     }
-    //player_vision.draw_vision(player.get_current_player_position());
     player_vision.draw_vision_with_ray_cast(0, player.get_current_player_position());
     player_vision.clear_prev_player_position(player.get_current_player_position());
     player_vision.draw_player(player.get_current_player_position(), 0);
 }
 
+void start()
+{
+    tft.setCursor(0,0);
+    tft.setRotation(0);
+    tft.fillScreen(TFT_BLACK);
+    tft.setTextSize(1);
+
+    map_time = millis();
+
+    world_map.draw_map();
+
+    button_joystick.on_press(show_vision);
+    finished=false;
+
+    for (uint8_t y=number_of_rows/2-2;y<number_of_rows/2+3;y++)
+    {
+        if (set_starting_position(y, number_of_cols/2))
+        {
+            break;
+        }
+    }
+    player.set_player_posistion(starting_point);
+    player_vision.load_player(convert_to_RGB(176, 168, 111),convert_to_RGB(99, 5, 14), 0, player.get_current_player_position());
+}
+
+void fading_effect(const char str [], uint8_t size ,HSV starting_color, uint8_t itr)
+{
+    uint8_t hue = starting_color.hue;
+    uint8_t i=0;
+    while (i<size)
+    {
+        tft.setTextColor(HSV_to_RGB(starting_color));
+        tft.print(str[i]);
+        if (i<size/2-1)
+        {
+            starting_color.hue += itr;
+        }
+        else{
+            starting_color.hue -= itr;
+        }
+        i++;
+    }
+    starting_color.hue = hue;
+}
+
+void introduction()
+{
+    tft.setCursor(80,0);
+    tft.fillScreen(TFT_BLACK);
+    tft.setTextFont(2);
+    tft.setRotation(1);
+    tft.setTextSize(3);
+
+    HSV fading_color = {200,100,100};
+    fading_effect("MAZE 2D", 8, fading_color, 20);
+    tft.println("");
+    tft.println("");
+    tft.setTextSize(1);
+    tft.setTextColor(TFT_WHITE);
+    tft.print(" Press Joystick to start...");
+}
+
 void setup()
 {
-    uint8_t number_of_cols = NUMBER_OF_COL_MAP*2;
-    uint8_t number_of_rows = NUMBER_OF_ROWS_MAP*2;
+    button_joystick._init_();
+    button_joystick.on_press(start);
     joystick._init_();
     joystick.on_dir_down(down);
     joystick.on_dir_up(up);
@@ -297,44 +478,27 @@ void setup()
     tft.init();
 
     maze_gen._init_();
-    maze_gen.create_generators(7, sec_map,number_of_cols,number_of_rows);
+    maze_gen.create_generators(5, sec_map,number_of_cols,number_of_rows);
     maze_gen.generate_maze(6,5,13);
+    maze_gen.delte_nodes();
 
-    world_map.set_map(sec_map,number_of_rows,number_of_cols, 229,180,22);
+    world_map.set_map(sec_map,number_of_rows,number_of_cols, 0, 128, 153);
     tft.fillScreen(TFT_BLACK);
 
     door.generate_door(9);
 
-    Point test_point (30,30);
-
-    player_vision.load_map(sec_map,number_of_cols, number_of_rows, NUMBER_OF_COL_MAP, NUMBER_OF_ROWS_MAP,convert_to_RGB(100, 28, 173));
+    player_vision.load_map(sec_map,number_of_cols, number_of_rows, NUMBER_OF_COL_MAP, NUMBER_OF_ROWS_MAP,convert_to_RGB(2, 96, 173));
     player_vision.load_ray_casting(0.035, 6.28, 10, color);
 
-    uint8_t width_of_segment = tft.width()/(number_of_cols); // 240
-    uint8_t height_of_segment = tft.height()/(number_of_rows); //320
-    for (uint8_t y=number_of_rows/2-2;y<number_of_rows/2+3;y++)
-    {
-        for (uint8_t x = number_of_cols/2 - 2;x<number_of_cols/2 +3;x++)
-        {
-            if (sec_map[y*number_of_cols+x]==0)
-            {
-                test_point.x=x;
-                test_point.y=y;
-                tft.fillRect(x*width_of_segment, y*height_of_segment, width_of_segment, height_of_segment, TFT_WHITE);
-                goto jump;
-            }
-        }
-    }
-
-jump:
-    player.set_player_posistion(test_point);
     player._init_();
-    player_vision.load_player(convert_to_RGB(176, 168, 111),convert_to_RGB(99, 5, 14), 0, player.get_current_player_position());
-    world_map.draw_map();
-    map_time = millis();
+    introduction();
 }
 
 void loop()
 {
-    joystick.read();
+    button_joystick.read();
+    if (!finished)
+    {
+        joystick.read();
+    } 
 }   
