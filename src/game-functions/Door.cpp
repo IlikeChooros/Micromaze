@@ -35,7 +35,7 @@ void Door::load_map(uint8_t num_of_doors)
     door_positions = door_points;
 }
 
-void Door::generate_door(uint8_t approx)
+Wall_dir Door::generate_door(uint8_t approx)
 {
     Wall_dir destinated_dir;
     Wall_dir current_dir;
@@ -116,7 +116,7 @@ void Door::generate_door(uint8_t approx)
 
                 distance_from_node = sqrt(_y+_x);
                 distance_from_node = round(distance_from_node);
-                if (dist+approx>= distance_from_node && dist-approx<=distance_from_node && current_dir == destinated_dir)
+                if (current_dir == destinated_dir && dist+approx>= distance_from_node && dist-approx<=distance_from_node)
                 {
                     matrix[y*num_of_cols + x]=3;
                     num_of_doors_nearby[0] = doors_nearby(x-1, y-1, matrix); // TOP LEFT
@@ -155,10 +155,12 @@ void Door::generate_door(uint8_t approx)
     door_positions = door_pos;
     matrix[max_coordinates[1]*num_of_cols+max_coordinates[0]] = 2;
 
+    return destinated_dir;
 }
 
 void Door::clear_map()
 {
+    _map->get_current_map()[door_positions[0]]=0;
     delete door_positions;
 }
 

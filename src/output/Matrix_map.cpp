@@ -26,7 +26,7 @@ void Matrix_map::draw_map() // FOR 2D ONLY
             y_pointer = y*height_of_segment;
             if (_map[y*number_of_col_map+x]==2)
             {
-                _tft->fillRect(x_pointer, y_pointer,width_of_segment,height_of_segment,converToRGB(200,50,110));
+                _tft->fillRect(x_pointer, y_pointer,width_of_segment,height_of_segment,converToRGB(219, 147, 2));
             }
             else if (_map[y*number_of_col_map + x])
             {

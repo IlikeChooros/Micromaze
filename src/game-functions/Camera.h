@@ -30,6 +30,7 @@ class Camera
     uint32_t wall_color;
     uint32_t player_color;
     uint32_t player_angle_color;
+    uint32_t door_color;
 
     float _angle_itr;
     float _angle_of_view;

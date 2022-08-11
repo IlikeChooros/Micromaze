@@ -7,10 +7,11 @@
 #define FREE_ANALOG_PIN 28
 
 enum Wall_dir {
-    TOP_L = 0,
-    TOP_R = 1,
-    DOWN_L = 2,
-    DOWN_R = 3
+    TOP_L,
+    TOP_R,
+    DOWN_L,
+    DOWN_R,
+    MIDDLE
 };
 
 class Door
@@ -33,7 +34,7 @@ class Door
     void load_map(uint8_t num_of_doors);
     bool check_collision_with_player(Point player_pos);
     void clear_map();
-    void generate_door(uint8_t approx);
+    Wall_dir generate_door(uint8_t approx);
 };
 
 

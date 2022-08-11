@@ -29,14 +29,13 @@ class Maze_generator
 
     void generate_part_maze(uint8_t generation, uint8_t min_dist, uint8_t max_dist);
 
-    void delete_unused_nodes(uint8_t i, uint8_t generator);
-    uint32_t to_power_3(uint8_t num);
+    void delete_unused_nodes(uint16_t size, uint8_t generator);
 
     public:
     void _init_();
     void create_generators(uint8_t starting_pos,uint8_t *matrix, uint8_t number_of_col, uint8_t number_of_rows);
     void generate_maze(uint8_t number_of_generations, uint8_t min_dist, uint8_t max_dist);
-    void reset();
+    void delte_nodes();
 };
 
 

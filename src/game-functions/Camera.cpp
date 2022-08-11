@@ -13,6 +13,7 @@ void Camera::load_map(uint8_t *matrix, uint8_t number_of_cols, uint8_t number_of
     _width_of_vision = width_of_vision;
     _height_of_vision = height_of_vision;
     this->wall_color = wall_color;
+    door_color = convert_to_RGB(201, 136, 6);
 
     x_margin = _width_of_vision/2;
     y_margin = _height_of_vision/2;
@@ -215,7 +216,7 @@ void Camera::draw_current_vision(uint8_t x, uint8_t y)
             //Serial.println("Y_POS : "+ String(y_pos)+"  X_POS: "+ String(x_pos));
             if (_map[y_pos*_number_of_cols + x_pos] == 2)
             {
-                _tft->fillRect(x_ptr*scale_x, y_ptr*scale_y,scale_x, scale_y, TFT_MAROON);
+                _tft->fillRect(x_ptr*scale_x, y_ptr*scale_y,scale_x, scale_y, door_color);
             }
 
             else if (_map[y_pos*_number_of_cols + x_pos])

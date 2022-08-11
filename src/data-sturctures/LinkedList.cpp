@@ -65,6 +65,46 @@ Point *LinkedList::poll_last()
     return lastPoint;
 }
 
+Point *LinkedList::delete_node(Node* node) // | tail | <- -> | last |  ...  | next | <- | node | -> | prev | ... | head |
+{
+    if (!_head)
+    {
+        return 0;
+    }
+    if (node == _head && !_tail)
+    {
+        _head = 0;
+        return 0;
+    }
+
+    Point *point_to_delte;
+    Node *next_node = node->next; 
+    Node *prev_node = node->prev;
+
+    if (!next_node)// node is tail
+    {
+        return poll_last();
+    }
+
+    if (node == _head)
+    {
+        _head = node->next;
+        node->next = 0;
+        point_to_delte = node->point;
+        delete node;
+        return point_to_delte;
+    }
+
+    next_node->prev = prev_node;
+    prev_node->next = next_node;
+    node->next = 0;
+    node->prev = 0;
+    point_to_delte = node->point;
+
+    delete node;
+    return point_to_delte;
+}
+
 uint16_t LinkedList::size()
 {
     return !this->_head ? 0:1+this->count(this->_head->next);
