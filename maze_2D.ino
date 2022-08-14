@@ -9,6 +9,7 @@
 #include "src/data-sturctures/LinkedList.h"
 #include "src/data-sturctures/Point.h"
 #include "src/data-sturctures/Point_extended.h"
+#include "src/data-sturctures/Stack.h"
 
 #include <TFT_eSPI.h> 
 #include <SPI.h>
@@ -466,39 +467,39 @@ void introduction()
 
 void setup()
 {
-    button_joystick._init_();
-    button_joystick.on_press(start);
-    joystick._init_();
-    joystick.on_dir_down(down);
-    joystick.on_dir_up(up);
-    joystick.on_dir_left(left);
-    joystick.on_dir_right(right);
+    // button_joystick._init_();
+    // button_joystick.on_press(start);
+    // joystick._init_();
+    // joystick.on_dir_down(down);
+    // joystick.on_dir_up(up);
+    // joystick.on_dir_left(left);
+    // joystick.on_dir_right(right);
 
     Serial.begin(921600);
-    tft.init();
+    // tft.init();
 
-    maze_gen._init_();
-    maze_gen.create_generators(5, sec_map,number_of_cols,number_of_rows);
-    maze_gen.generate_maze(6,5,13);
-    maze_gen.delte_nodes();
+    // maze_gen._init_();
+    // maze_gen.create_generators(5, sec_map,number_of_cols,number_of_rows);
+    // maze_gen.generate_maze(6,5,13);
+    // maze_gen.delte_nodes();
 
-    world_map.set_map(sec_map,number_of_rows,number_of_cols, 0, 128, 153);
-    tft.fillScreen(TFT_BLACK);
+    // world_map.set_map(sec_map,number_of_rows,number_of_cols, 0, 128, 153);
+    // tft.fillScreen(TFT_BLACK);
 
-    door.generate_door(9);
+    // door.generate_door(9);
 
-    player_vision.load_map(sec_map,number_of_cols, number_of_rows, NUMBER_OF_COL_MAP, NUMBER_OF_ROWS_MAP,convert_to_RGB(2, 96, 173));
-    player_vision.load_ray_casting(0.035, 6.28, 10, color);
+    // player_vision.load_map(sec_map,number_of_cols, number_of_rows, NUMBER_OF_COL_MAP, NUMBER_OF_ROWS_MAP,convert_to_RGB(2, 96, 173));
+    // player_vision.load_ray_casting(0.035, 6.28, 10, color);
 
-    player._init_();
-    introduction();
+    // player._init_();
+    // introduction();
 }
 
 void loop()
 {
-    button_joystick.read();
-    if (!finished)
-    {
-        joystick.read();
-    } 
+    // button_joystick.read();
+    // if (!finished)
+    // {
+    //     joystick.read();
+    // } 
 }   
