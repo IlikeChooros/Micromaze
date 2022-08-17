@@ -1,41 +1,44 @@
 #ifndef _MAZE_GENERATOR_
 #define _MAZE_GENERATOR_
 
-#include "../data-sturctures/LinkedList.h"
+#include "../data-sturctures/Stack.h"
+#include "../data-sturctures/Point_extended.h"
+#include "TFT_eSPI.h"
+#include "SPI.h"
 
 #define UNUSED_PIN_ANALOG 26
+#define CELL_VISITED 5
+
+enum Possible_dir {
+    CELL_NORTH_CONNECTION = 1,
+    CELL_SOUTH_CONNECTION = 2,
+    CELL_WEST_CONNECTION = 3,
+    CELL_EAST_CONNECTION = 4
+};
 
 class Maze_generator
 {
-    LinkedList *four_generators;
+    TFT_eSPI *_tft;
+    Stack stack;
 
     uint8_t *_map;
+    uint8_t *visited;
+    uint8_t _number_of_visited;
 
     uint8_t _number_of_rows;
     uint8_t _number_of_cols;
 
-    uint8_t _number_of_generations;
+    uint8_t path_width;
+    Point_extended cell_scale;
 
-    uint8_t _starting_pos;
-
-    bool finished;
-
-    void check_possible_moves(uint8_t dir, uint8_t generator, Node* node, uint8_t dist);
-    
-    void move_wall_left(Node *node, uint8_t dist, uint16_t _pos);
-    void move_wall_right(Node *node, uint8_t dist, uint16_t _pos);
-    void move_wall_up(Node *node, uint8_t dist, uint16_t _pos);
-    void move_wall_down(Node *node, uint8_t dist, uint16_t _pos);
-
-    void generate_part_maze(uint8_t generation, uint8_t min_dist, uint8_t max_dist);
-
-    void delete_unused_nodes(uint16_t size, uint8_t generator);
+    void draw_connection_ew(Point point, uint32_t color);
+    void draw_connection_ns(Point point, uint32_t color);
 
     public:
-    void _init_();
-    void create_generators(uint8_t starting_pos,uint8_t *matrix, uint8_t number_of_col, uint8_t number_of_rows);
-    void generate_maze(uint8_t number_of_generations, uint8_t min_dist, uint8_t max_dist);
-    void delte_nodes();
+    Maze_generator(TFT_eSPI *tft);
+    void load_map(uint8_t number_of_cols, uint8_t number_of_rows);
+    void generate_maze(Point *starting_point);
+    void draw_maze();
 };
 
 

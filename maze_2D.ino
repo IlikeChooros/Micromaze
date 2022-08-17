@@ -21,8 +21,8 @@
 #define NUMBER_OF_ROWS_MAP 32
 #define NUMBER_OF_COL_MAP 24
 
-uint8_t number_of_cols = NUMBER_OF_COL_MAP*2;
-uint8_t number_of_rows = NUMBER_OF_ROWS_MAP*2;
+uint8_t number_of_cols = NUMBER_OF_COL_MAP;
+uint8_t number_of_rows = NUMBER_OF_ROWS_MAP;
 
 TFT_eSPI tft = TFT_eSPI();
 
@@ -49,7 +49,7 @@ uint8_t *all_maps[2]={
 Point collision_point;
 Point starting_point (0,0);
 
-Maze_generator maze_gen;
+Maze_generator maze_gen(&tft);
 
 Camera player_vision(&tft);
 
@@ -151,67 +151,67 @@ void show_vision()
 
 void reset()
 {
-    button_joystick.on_press(show_vision);
+    // button_joystick.on_press(show_vision);
 
-    tft.fillScreen(TFT_BLACK);
+    // tft.fillScreen(TFT_BLACK);
 
-    for (uint8_t y = 1;y<number_of_rows-1;y++)
-    {
-        for(uint8_t x=1;x<number_of_cols-1;x++)
-        {
-            sec_map[y*number_of_cols+x]=0;
-        }
-    }
+    // for (uint8_t y = 1;y<number_of_rows-1;y++)
+    // {
+    //     for(uint8_t x=1;x<number_of_cols-1;x++)
+    //     {
+    //         sec_map[y*number_of_cols+x]=0;
+    //     }
+    // }
 
-    maze_gen.create_generators(5,sec_map,number_of_cols,number_of_rows);
-    maze_gen.generate_maze(6,5,13);
-    maze_gen.delte_nodes();
+    // maze_gen.create_generators(5,sec_map,number_of_cols,number_of_rows);
+    // maze_gen.generate_maze(6,5,13);
+    // maze_gen.delte_nodes();
 
 
-    door.clear_map();
-    door_dir = door.generate_door(9);
+    // door.clear_map();
+    // door_dir = door.generate_door(9);
 
-    uint8_t x_margin = number_of_cols/2;
-    uint8_t y_margin = number_of_rows/2;
+    // uint8_t x_margin = number_of_cols/2;
+    // uint8_t y_margin = number_of_rows/2;
 
-    if (completed_game_with_high_score>1)
-    {
-        switch (door_dir)
-        {
-            case TOP_L:
-                x_margin = 3;  // DOWN_R
-                y_margin = number_of_rows - 4;
-                break;
-            case TOP_R:
-                x_margin = 3; // DOWN_L
-                y_margin = 3;
-                break;
-            case DOWN_L:
-                x_margin = number_of_cols - 4; // TOP_R
-                y_margin = number_of_rows - 4;
-                break;
-            case DOWN_R:
-                x_margin = number_of_cols - 4; // TOP_L
-                y_margin = 3;
-                break;
-            default:
-                break;
-        }
-    }
+    // if (completed_game_with_high_score>1)
+    // {
+    //     switch (door_dir)
+    //     {
+    //         case TOP_L:
+    //             x_margin = 3;  // DOWN_R
+    //             y_margin = number_of_rows - 4;
+    //             break;
+    //         case TOP_R:
+    //             x_margin = 3; // DOWN_L
+    //             y_margin = 3;
+    //             break;
+    //         case DOWN_L:
+    //             x_margin = number_of_cols - 4; // TOP_R
+    //             y_margin = number_of_rows - 4;
+    //             break;
+    //         case DOWN_R:
+    //             x_margin = number_of_cols - 4; // TOP_L
+    //             y_margin = 3;
+    //             break;
+    //         default:
+    //             break;
+    //     }
+    // }
 
-    for (uint8_t y=y_margin-2;y<y_margin+3;y++)
-    {
-        if (set_starting_position(y, x_margin))
-        {
-            break;
-        }
-    }
-    player.set_player_posistion(starting_point);
-    world_map.draw_map();
-    map_time = millis();
-    button_pressed=0;
-    finished = false;
-    timer_started = false;
+    // for (uint8_t y=y_margin-2;y<y_margin+3;y++)
+    // {
+    //     if (set_starting_position(y, x_margin))
+    //     {
+    //         break;
+    //     }
+    // }
+    // player.set_player_posistion(starting_point);
+    // world_map.draw_map();
+    // map_time = millis();
+    // button_pressed=0;
+    // finished = false;
+    // timer_started = false;
 }
 
 
@@ -476,7 +476,12 @@ void setup()
     // joystick.on_dir_right(right);
 
     Serial.begin(921600);
-    // tft.init();
+    tft.init();
+
+    tft.fillScreen(TFT_BLACK);
+    maze_gen.load_map(number_of_cols, number_of_rows);
+    maze_gen.generate_maze(new Point(1,1));
+    maze_gen.draw_maze();
 
     // maze_gen._init_();
     // maze_gen.create_generators(5, sec_map,number_of_cols,number_of_rows);
