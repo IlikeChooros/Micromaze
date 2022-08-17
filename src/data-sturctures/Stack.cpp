@@ -23,6 +23,7 @@ Stack::Stack()
 //  ---------
 //      |
 //     ...
+
 void Stack::push(Point *point)
 {
     Stack_node *node = new Stack_node(point);    

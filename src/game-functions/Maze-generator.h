@@ -33,6 +33,10 @@ class Maze_generator
 
     void draw_connection_ew(Point point, uint32_t color);
     void draw_connection_ns(Point point, uint32_t color);
+    uint16_t convert_to_coordinates(Point *point);
+
+    void generate(Point *point);
+
 
     public:
     Maze_generator(TFT_eSPI *tft);

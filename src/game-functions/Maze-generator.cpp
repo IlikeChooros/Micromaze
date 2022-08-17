@@ -31,11 +31,144 @@ void Maze_generator::generate_maze(Point *starting_point)
 {
     stack.push(starting_point);
 
-    _number_of_visited=1;
-    _map[starting_point->y * _number_of_cols + starting_point->x] = CELL_VISITED;
+    _number_of_visited=0;
 
-    
+    uint8_t possible_moves[4]={0};
 
+    Point *point = starting_point;
+
+    while(_number_of_visited < _number_of_cols*_number_of_rows)
+    {
+        // Serial.println("");
+        // Serial.println("------------------------------------------");
+        // Serial.println("STATING MAZE");
+        if (!point)
+        {
+            return;
+        }
+        uint16_t coordinates = convert_to_coordinates(point);
+
+        for(uint8_t i=0;i<4;i++)
+            possible_moves[i]=0;
+
+        _map[coordinates] = _map[coordinates] == 0 ? CELL_VISITED : _map[coordinates];
+        
+
+        // NORTH
+        if (point->x<_number_of_cols -1)
+        {
+            point->x += 1;
+            if (!_map[convert_to_coordinates(point)])
+            {
+                possible_moves[CELL_NORTH_CONNECTION-1]=1;
+                //Serial.println("NORTH");
+            }
+                
+            point->x -=1;
+        }
+
+        // SOUTH
+        if(point->x>0)
+        {
+            point->x -= 1;
+            if (!_map[convert_to_coordinates(point)])
+            {
+                possible_moves[CELL_SOUTH_CONNECTION-1]=1;
+                //Serial.println("SOUTH");
+            }
+                
+            point->x +=1;
+        }
+
+        //EAST
+        if(point->y<_number_of_rows -1)
+        {
+            point->y += 1;
+            if (!_map[convert_to_coordinates(point)])
+            {
+                possible_moves[CELL_EAST_CONNECTION-1]=1;
+                //Serial.println("EAST");
+            }
+                
+            point->y -=1;
+        }
+
+        //WEST
+        if(point->y>0)
+        {
+            point->y -= 1;
+            if (!_map[convert_to_coordinates(point)])
+            {
+                possible_moves[CELL_WEST_CONNECTION-1]=1;
+                //Serial.println("WEST");
+            }
+                
+            point->y +=1;
+        }
+
+        uint8_t counter=0;
+        for (uint8_t i=0;i<4;i++)
+        {
+            if (possible_moves[i])
+                counter++;
+        }
+        //Serial.println("COUNTER "+String(counter));
+        if (counter>0)
+        {
+            int8_t random_num = random(counter);
+            uint8_t next_dir;
+            uint8_t x = point->x,y = point->y;
+
+            for (uint8_t i=0;i<4;i++)
+            {
+                if (possible_moves[i])
+                {
+                    if (random_num == 0)
+                    {
+                        next_dir = i+1;
+                        break;
+                    }
+                    random_num--;
+                }
+            }
+
+            _map[coordinates]=next_dir;
+            //Serial.print("NEXT_DIR "+String(next_dir));
+            switch(next_dir)
+            {
+                case CELL_NORTH_CONNECTION:
+                    //Serial.print("    NORTH");
+                    point = new Point(x+1,y);
+                    break;
+                case CELL_SOUTH_CONNECTION:
+                    //Serial.print("    SOUTH");
+                    point = new Point(x-1,y);
+                    break;
+                case CELL_EAST_CONNECTION:
+                    //Serial.print("    EAST");
+                    point = new Point(x, y+1);
+                    break;
+                case CELL_WEST_CONNECTION:
+                    //Serial.print("    WEST");
+                    point = new Point(x, y-1);
+                    break;
+                default:
+                    break;
+            }
+
+
+            //Serial.println("  XXX");
+            stack.push(point);
+            _number_of_visited++;
+            if (_number_of_visited%5==0)
+            {
+                draw_maze();
+            }
+        }
+        else{
+            point = stack.pop();
+        }
+    }
 }
 
 void Maze_generator::draw_maze()
@@ -49,7 +182,7 @@ void Maze_generator::draw_maze()
         {
             if (_map[y*_number_of_cols + x])
             {
-                color = TFT_DARKCYAN;
+                color = TFT_BLACK;
             }
             else{
                 color = TFT_BLUE;
@@ -106,6 +239,12 @@ void Maze_generator::draw_maze()
     }
 }
 
+// private
+
+uint16_t Maze_generator::convert_to_coordinates(Point *point)
+{
+    return point->y*_number_of_cols+point->x;
+}
 
 void Maze_generator::draw_connection_ew(Point point, uint32_t color)
 {

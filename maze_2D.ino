@@ -478,9 +478,15 @@ void setup()
     Serial.begin(921600);
     tft.init();
 
-    tft.fillScreen(TFT_BLACK);
+    tft.fillScreen(TFT_WHITE);
+
+    Point *point = new Point(1,1);
+    point = new Point(2,1);
+
     maze_gen.load_map(number_of_cols, number_of_rows);
     maze_gen.generate_maze(new Point(1,1));
+
+    tft.fillScreen(TFT_WHITE);
     maze_gen.draw_maze();
 
     // maze_gen._init_();

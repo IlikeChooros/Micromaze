@@ -6,9 +6,9 @@
 class Point
 {
     public:
-    uint8_t x;
-    uint8_t y;
-    Point(uint8_t = 0, uint8_t = 0);
+    int16_t x;
+    int16_t y;
+    Point(int16_t = 0, int16_t = 0);
 };
 
 #endif
