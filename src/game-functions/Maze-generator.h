@@ -21,8 +21,7 @@ class Maze_generator
     TFT_eSPI *_tft;
     Stack stack;
 
-    uint8_t *_map;
-    uint8_t *visited;
+    uint8_t **_map;
     uint8_t _number_of_visited;
 
     uint8_t _number_of_rows;

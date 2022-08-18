@@ -8,8 +8,15 @@ Maze_generator::Maze_generator(TFT_eSPI *tft)
 
 void Maze_generator::load_map(uint8_t number_of_cols, uint8_t number_of_rows)
 {
-    this->_map = new uint8_t [number_of_cols*number_of_rows];
-    memset(_map, 0, number_of_cols*number_of_rows*sizeof(uint8_t));
+    this->_map = new uint8_t* [number_of_cols*number_of_rows];
+    for (uint16_t i=0;i<number_of_cols*number_of_rows;i++)
+    {
+        _map[i] = new uint8_t [3]; 
+        for (uint8_t j=0;j<3;j++)
+        {
+            _map[i][j] = 0;
+        }
+    }
 
     this->_number_of_cols = number_of_cols;
     this->_number_of_rows = number_of_rows;
@@ -30,6 +37,7 @@ void Maze_generator::load_map(uint8_t number_of_cols, uint8_t number_of_rows)
 void Maze_generator::generate_maze(Point *starting_point)
 {
     stack.push(starting_point);
+    uint8_t scale = _number_of_cols*_number_of_cols / (8* 6) + 1;
 
     _number_of_visited=0;
 
@@ -51,14 +59,14 @@ void Maze_generator::generate_maze(Point *starting_point)
         for(uint8_t i=0;i<4;i++)
             possible_moves[i]=0;
 
-        _map[coordinates] = _map[coordinates] == 0 ? CELL_VISITED : _map[coordinates];
+        _map[coordinates][0] = _map[coordinates][0] == 0 ? CELL_VISITED : _map[coordinates][0];
         
 
         // NORTH
         if (point->x<_number_of_cols -1)
         {
             point->x += 1;
-            if (!_map[convert_to_coordinates(point)])
+            if (!_map[convert_to_coordinates(point)][0])
             {
                 possible_moves[CELL_NORTH_CONNECTION-1]=1;
                 //Serial.println("NORTH");
@@ -71,7 +79,7 @@ void Maze_generator::generate_maze(Point *starting_point)
         if(point->x>0)
         {
             point->x -= 1;
-            if (!_map[convert_to_coordinates(point)])
+            if (!_map[convert_to_coordinates(point)][0])
             {
                 possible_moves[CELL_SOUTH_CONNECTION-1]=1;
                 //Serial.println("SOUTH");
@@ -84,7 +92,7 @@ void Maze_generator::generate_maze(Point *starting_point)
         if(point->y<_number_of_rows -1)
         {
             point->y += 1;
-            if (!_map[convert_to_coordinates(point)])
+            if (!_map[convert_to_coordinates(point)][0])
             {
                 possible_moves[CELL_EAST_CONNECTION-1]=1;
                 //Serial.println("EAST");
@@ -97,7 +105,7 @@ void Maze_generator::generate_maze(Point *starting_point)
         if(point->y>0)
         {
             point->y -= 1;
-            if (!_map[convert_to_coordinates(point)])
+            if (!_map[convert_to_coordinates(point)][0])
             {
                 possible_moves[CELL_WEST_CONNECTION-1]=1;
                 //Serial.println("WEST");
@@ -132,7 +140,16 @@ void Maze_generator::generate_maze(Point *starting_point)
                 }
             }
 
-            _map[coordinates]=next_dir;
+            // Writing to cell its connection to a free cell
+            for (uint8_t i=0;i<3;i++)
+            {
+                if (_map[coordinates][i] == 0 || _map[coordinates][i] == CELL_VISITED)
+                {
+                    _map[coordinates][i]=next_dir;
+                    break;
+                }
+            }
+            
             //Serial.print("NEXT_DIR "+String(next_dir));
             switch(next_dir)
             {
@@ -160,7 +177,7 @@ void Maze_generator::generate_maze(Point *starting_point)
             //Serial.println("  XXX");
             stack.push(point);
             _number_of_visited++;
-            if (_number_of_visited%5==0)
+            if (_number_of_visited%scale==0)
             {
                 draw_maze();
             }
@@ -176,11 +193,16 @@ void Maze_generator::draw_maze()
     Point_extended pointer;
     uint32_t color;
 
+    uint16_t coordinates;
+
     for (uint8_t y=0;y<_number_of_rows;y++)
     {
         for(uint8_t x=0;x<_number_of_cols;x++)
         {
-            if (_map[y*_number_of_cols + x])
+            coordinates = y*_number_of_cols + x;
+
+            //Checking if the cell is occupied, useless if theres no real time maze building display
+            if (_map[coordinates][0])
             {
                 color = TFT_BLACK;
             }
@@ -201,40 +223,44 @@ void Maze_generator::draw_maze()
                     _tft->fillRect(pointer.fl_x + x1, pointer.fl_y + y1, cell_scale.fl_x, cell_scale.fl_y, color);
                 }
             }
+            
 
-            Point point;
-
-            if (_map[y*_number_of_cols + x] == CELL_EAST_CONNECTION)
+            // Checking if there is any connection to another cell
+            if (_map[coordinates][0] != CELL_VISITED && _map[coordinates][0] != 0) 
             {
-                point.x = pointer.fl_x; 
-                point.y = pointer.fl_y + (path_width -1)*cell_scale.y;
-                draw_connection_ew(point, color);
+                Point point;
+
+                for (uint8_t i=0;i<3; i++)
+                {
+                    if (_map[coordinates][i] == CELL_EAST_CONNECTION)
+                    {
+                        point.x = pointer.fl_x; 
+                        point.y = pointer.fl_y + (path_width -1)*cell_scale.y;
+                        draw_connection_ew(point, color);
+                    }
+
+                    else if (_map[coordinates][i] == CELL_WEST_CONNECTION)
+                    {
+                        point.x = pointer.fl_x; 
+                        point.y = pointer.fl_y - cell_scale.y;
+                        draw_connection_ew(point, color);
+                    }
+
+                    else if (_map[coordinates][i] == CELL_NORTH_CONNECTION)
+                    {
+                        point.x = pointer.fl_x + (path_width-1)*cell_scale.x; 
+                        point.y = pointer.fl_y;
+                        draw_connection_ns(point, color);
+                    }
+
+                    else if (_map[coordinates][i] == CELL_SOUTH_CONNECTION)
+                    {
+                        point.x = pointer.fl_x - cell_scale.x; 
+                        point.y = pointer.fl_y;
+                        draw_connection_ns(point, color);
+                    }
+                }
             }
-
-            else if (_map[y*_number_of_cols + x] == CELL_WEST_CONNECTION)
-            {
-                point.x = pointer.fl_x; 
-                point.y = pointer.fl_y - cell_scale.y;
-                draw_connection_ew(point, color);
-            }
-
-            else if (_map[y*_number_of_cols + x] == CELL_NORTH_CONNECTION)
-            {
-                point.x = pointer.fl_x + (path_width-1)*cell_scale.x; 
-                point.y = pointer.fl_y;
-                //_tft->fillRect(point.x, point.y, cell_scale.fl_x, cell_scale.fl_y, color);
-
-                draw_connection_ns(point, color);
-            }
-
-            else if (_map[y*_number_of_cols + x] == CELL_SOUTH_CONNECTION)
-            {
-                point.x = pointer.fl_x - cell_scale.x; 
-                point.y = pointer.fl_y;
-                draw_connection_ns(point, color);
-            }
-
-
         }
     }
 }

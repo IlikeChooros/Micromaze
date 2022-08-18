@@ -480,10 +480,8 @@ void setup()
 
     tft.fillScreen(TFT_WHITE);
 
-    Point *point = new Point(1,1);
-    point = new Point(2,1);
-
     maze_gen.load_map(number_of_cols, number_of_rows);
+
     maze_gen.generate_maze(new Point(1,1));
 
     tft.fillScreen(TFT_WHITE);
