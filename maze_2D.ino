@@ -478,8 +478,8 @@ void setup()
     tft.init();
 
     maze_gen._init_();
-    maze_gen.create_generators(5, sec_map,number_of_cols,number_of_rows);
-    maze_gen.generate_maze(6,5,13);
+    maze_gen.create_generators(7, sec_map,number_of_cols,number_of_rows);
+    maze_gen.generate_maze(7,5,13);
     maze_gen.delte_nodes();
 
     world_map.set_map(sec_map,number_of_rows,number_of_cols, 0, 128, 153);
