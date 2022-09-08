@@ -1,21 +1,13 @@
 #include "src/input/Joystick_esp.h"
 #include "src/input/Button.h"
-#include "src/output/Matrix_map.h"
-#include "src/output/Player_tft.h"
-#include "src/output/Level_maps.h"
-#include "src/output/visual_functions.h"
 #include "src/output/Options.h"
-#include "src/game-functions/Door.h"
 #include "src/game-functions/Maze-generator.h"
-#include "src/game-functions/Camera.h"
-#include "src/data-sturctures/LinkedList.h"
 #include "src/data-sturctures/Point.h"
 #include "src/data-sturctures/Point_extended.h"
 #include "src/data-sturctures/Stack.h"
 
 #include <TFT_eSPI.h> 
 #include <SPI.h>
-#include <math.h>
 
 #define BUTTON_PIN 25
 #define ANALOG_X 32
@@ -23,11 +15,20 @@
 #define NUMBER_OF_ROWS_MAP 32
 #define NUMBER_OF_COL_MAP 24
 
+enum Dir{
+    UP,
+    DOWN,
+    LEFT,
+    RIGHT
+};
+
 uint8_t number_of_cols = NUMBER_OF_COL_MAP;
 uint8_t number_of_rows = NUMBER_OF_ROWS_MAP;
 
 Joystick joystick(ANALOG_X, ANALOG_Y);
 Button button_joystick(BUTTON_PIN);
+
+TFT_eSPI tft = TFT_eSPI();
 
 Maze_generator maze_gen(&tft);
 
