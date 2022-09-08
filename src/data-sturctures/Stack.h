@@ -15,11 +15,12 @@ class Stack_node
 class Stack
 {
     Stack_node *top_node;
+    uint16_t _size;
 
     public:
     Stack();
     void push(Point *point);
-    Point* pop();
+    Point pop();
     uint16_t size();
 };
 

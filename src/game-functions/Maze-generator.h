@@ -8,6 +8,8 @@
 
 #define UNUSED_PIN_ANALOG 26
 #define CELL_VISITED 5
+#define CELL_START 6
+#define CELL_FINISH 7
 
 enum Possible_dir {
     CELL_NORTH_CONNECTION = 1,
@@ -22,7 +24,7 @@ class Maze_generator
     Stack stack;
 
     uint8_t **_map;
-    uint8_t _number_of_visited;
+    uint16_t _number_of_visited;
 
     uint8_t _number_of_rows;
     uint8_t _number_of_cols;
@@ -32,7 +34,7 @@ class Maze_generator
 
     void draw_connection_ew(Point point, uint32_t color);
     void draw_connection_ns(Point point, uint32_t color);
-    uint16_t convert_to_coordinates(Point *point);
+    uint16_t convert_to_coordinates(Point point);
 
     void generate(Point *point);
 
@@ -42,6 +44,7 @@ class Maze_generator
     void load_map(uint8_t number_of_cols, uint8_t number_of_rows);
     void generate_maze(Point *starting_point);
     void draw_maze();
+    void clear();
 };
 
 

@@ -15,7 +15,7 @@ void Joystick::_init_()
 {
     time=0;
     _ignore_val = 50;
-    interval_time=100;
+    interval_time=150;
 
     this->on_dir_left(joystick_do_nothing);
     this->on_dir_right(joystick_do_nothing);

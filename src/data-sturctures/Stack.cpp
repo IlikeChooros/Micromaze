@@ -9,6 +9,7 @@ Stack_node::Stack_node(Point* point)
 Stack::Stack()
 {
     this->top_node = 0;
+    this->_size = 0;
 }
 
 
@@ -28,34 +29,29 @@ void Stack::push(Point *point)
 {
     Stack_node *node = new Stack_node(point);    
     node->prev = top_node;         // let top_node = 0x01, node = 0x02, then:   node->prev = 0x01,
-    top_node = node;               // top_node = 0x02, therefore we succesfully made a 'new' top node
+    top_node = node;               // top_node = 0x02, succesfully made a 'new' top node
+    _size++;
 }
 
-Point* Stack::pop()
+Point Stack::pop()
 {
     if (!top_node)
     {
         return 0;
     }
-
+    _size--;
     Stack_node *node = top_node;
-    Point* point = node->point;
+    Point point (node->point->x,node->point->y);
     top_node = node->prev;
     node->prev=0;
 
+    delete node->point;
     delete node;
     return point;
 }
 
 uint16_t Stack::size()
 {
-    uint16_t size=0;
-    Stack_node *node = top_node;
-    while(node)
-    {
-        size++;
-        node = node->prev;
-    }
-    return size;
+    return _size;
 }
 
