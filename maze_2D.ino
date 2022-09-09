@@ -3,6 +3,7 @@
 #include "src/output/Matrix_map.h"
 #include "src/output/Player_tft.h"
 #include "src/output/Level_maps.h"
+#include "src/output/Options.h"
 #include "src/game-functions/Door.h"
 #include "src/game-functions/Maze-generator.h"
 #include "src/game-functions/Camera.h"
@@ -66,6 +67,22 @@ HSV text_color = {100, 100, 100};
 Player_tft player(&tft,&world_map);
 
 Dir current_dir=RIGHT;
+
+Dir option_dir;
+
+Options options(&tft);
+
+int8_t current_layer = 0;
+int8_t current_option = 0;
+
+int8_t prev_pick_layer_2 = 0;
+int8_t prev_pick_layer_3 = 0;
+
+int8_t prev_pick_opt_2 = 0;
+int8_t prev_pick_opt_3 = 0;
+
+bool default_spawn = true;
+bool center_spawn = false;
 
 uint32_t convert_to_RGB(uint8_t r, uint8_t g, uint8_t b)
 {
@@ -135,7 +152,7 @@ bool set_starting_position(uint8_t y, uint8_t x_margin)
         {
             starting_point.x=x;
             starting_point.y=y;
-            tft.fillRect(x*width_of_segment, y*height_of_segment, width_of_segment, height_of_segment, TFT_WHITE);
+            //tft.fillRect(x*width_of_segment, y*height_of_segment, width_of_segment, height_of_segment, TFT_WHITE);
             return true;
         }
     }
@@ -146,6 +163,52 @@ void show_vision()
 {
     button_pressed++;
     player_vision.draw_vision(player.get_current_player_position());
+}
+
+
+void set_opposite_spawn_point()
+{
+    uint8_t x_margin = number_of_cols/2;
+    uint8_t y_margin = number_of_rows/2;
+
+    switch (door_dir)
+        {
+            case TOP_L:
+                x_margin = 3;  // DOWN_R
+                y_margin = number_of_rows - 4;
+                break;
+            case TOP_R:
+                x_margin = 3; // DOWN_L
+                y_margin = 3;
+                break;
+            case DOWN_L:
+                x_margin = number_of_cols - 4; // TOP_R
+                y_margin = number_of_rows - 4;
+                break;
+            case DOWN_R:
+                x_margin = number_of_cols - 4; // TOP_L
+                y_margin = 3;
+        }
+
+    for (uint8_t y=y_margin-2;y<y_margin+3;y++)
+    {
+        if (set_starting_position(y, x_margin))
+        {
+            return;
+        }
+    }
+}
+
+
+void set_center_spawn_point()
+{
+    for (uint8_t y=number_of_rows/2-2;y<number_of_rows/2+3;y++)
+    {
+        if (set_starting_position(y, number_of_cols/2))
+        {
+            return;
+        }
+    }
 }
 
 void reset()
@@ -170,41 +233,25 @@ void reset()
     door.clear_map();
     door_dir = door.generate_door(9);
 
-    uint8_t x_margin = number_of_cols/2;
-    uint8_t y_margin = number_of_rows/2;
 
-    if (completed_game_with_high_score>1)
+    if (center_spawn)
     {
-        switch (door_dir)
+        set_center_spawn_point();
+    }
+    else if(default_spawn)
+    {
+        if (completed_game_with_high_score>1)
         {
-            case TOP_L:
-                x_margin = 3;  // DOWN_R
-                y_margin = number_of_rows - 4;
-                break;
-            case TOP_R:
-                x_margin = 3; // DOWN_L
-                y_margin = 3;
-                break;
-            case DOWN_L:
-                x_margin = number_of_cols - 4; // TOP_R
-                y_margin = number_of_rows - 4;
-                break;
-            case DOWN_R:
-                x_margin = number_of_cols - 4; // TOP_L
-                y_margin = 3;
-                break;
-            default:
-                break;
+            set_opposite_spawn_point();
+        }
+        else{
+            set_center_spawn_point();
         }
     }
-
-    for (uint8_t y=y_margin-2;y<y_margin+3;y++)
-    {
-        if (set_starting_position(y, x_margin))
-        {
-            break;
-        }
+    else{
+        set_opposite_spawn_point();
     }
+
     player.set_player_posistion(starting_point);
     world_map.draw_map();
     map_time = millis();
@@ -416,13 +463,8 @@ void start()
     button_joystick.on_press(show_vision);
     finished=false;
 
-    for (uint8_t y=number_of_rows/2-2;y<number_of_rows/2+3;y++)
-    {
-        if (set_starting_position(y, number_of_cols/2))
-        {
-            break;
-        }
-    }
+    set_center_spawn_point();
+
     player.set_player_posistion(starting_point);
     player_vision.load_player(convert_to_RGB(176, 168, 111),convert_to_RGB(99, 5, 14), 0, player.get_current_player_position());
 }
@@ -457,22 +499,165 @@ void introduction()
 
     HSV fading_color = {200,100,100};
     fading_effect("MAZE 2D", 8, fading_color, 20);
-    tft.println("");
-    tft.println("");
-    tft.setTextSize(1);
-    tft.setTextColor(TFT_WHITE);
-    tft.print(" Press Joystick to start...");
+}
+
+
+void move_opt()
+{
+    uint8_t num_of_options = options.get_num_of_options_in_layer(current_layer);
+    //Serial.println("NUM OF OPTIONS = "+String(num_of_options)+" CURRENT_OPT: "+String(current_option) + "  CURRENT LAYER: "+String(current_layer));
+    switch(option_dir)
+    {
+        case UP:
+            current_option = current_option > 0 ? current_option-1 : num_of_options-1; 
+            break;
+        case DOWN:
+            current_option = current_option == num_of_options-1 ? 0 : current_option+1;
+            break;
+    }
+    tft.fillScreen(TFT_BLACK);
+    options.draw(current_layer, current_option);
+}
+
+void pick_option()
+{
+    if (current_layer == 0)
+    {
+        //introduction();
+        switch(current_option)
+        {
+            case 0:
+                start();
+                break;
+            case 1:
+                current_layer++;
+                current_option=0;
+                break;
+        }
+    }
+
+    else if(current_layer == 1)
+    {
+        switch(current_option)
+        {
+            case 0:
+                current_layer++;
+                break;
+            case 1:
+                current_layer=3;
+                current_option=0;
+                break;
+            case 2:
+                current_layer--;
+                current_option=0;
+        }
+    }
+
+    else if(current_layer == 2)
+    {
+        switch(current_option)
+        {
+            case 0:
+                default_spawn = true;
+                center_spawn = false;
+                options.set_mark(false,prev_pick_opt_2, prev_pick_layer_2);
+                options.set_mark(true,current_option, current_layer);
+
+                prev_pick_layer_2 = current_layer;
+                prev_pick_opt_2 = current_option;
+                break;
+            case 1:
+                default_spawn = false;
+                center_spawn = true;
+
+                options.set_mark(false,prev_pick_opt_2, prev_pick_layer_2);
+                options.set_mark(true,current_option, current_layer);
+
+                prev_pick_layer_2 = current_layer;
+                prev_pick_opt_2 = current_option;
+                break;
+            case 2:
+                default_spawn = false;
+                center_spawn = false;
+
+                options.set_mark(false,prev_pick_opt_2, prev_pick_layer_2);
+                options.set_mark(true,current_option, current_layer);
+
+                prev_pick_layer_2 = current_layer;
+                prev_pick_opt_2 = current_option;
+                break;
+            case 3:
+                current_layer--;
+                current_option=0;
+        }
+    }
+
+    else{
+        switch (current_option)
+        {
+            case 0:
+                number_of_cols = 96;
+                number_of_rows = 128;
+
+                options.set_mark(false,prev_pick_opt_3, prev_pick_layer_3);
+                options.set_mark(true,current_option, current_layer);
+
+                prev_pick_layer_3 = current_layer;
+                prev_pick_opt_3 = current_option;
+                break;
+            case 1:
+                number_of_cols = 48;
+                number_of_rows = 64;
+                options.set_mark(false,prev_pick_opt_3, prev_pick_layer_3);
+                options.set_mark(true,current_option, current_layer);
+
+                prev_pick_layer_3 = current_layer;
+                prev_pick_opt_3 = current_option;
+                break;
+            case 2:
+                number_of_cols = 24;
+                number_of_rows = 32;
+
+                options.set_mark(false,prev_pick_opt_3, prev_pick_layer_3);
+                options.set_mark(true,current_option, current_layer);
+
+                prev_pick_layer_3 = current_layer;
+                prev_pick_opt_3 = current_option;
+                break;
+            case 3:
+                current_layer = 1;
+                current_option=0;
+        }
+    }
+    options.draw(current_layer,current_option);
+}
+
+void move_up_opt()
+{
+    option_dir = UP;
+    move_opt();
+}
+
+void move_down_opt()
+{
+    option_dir = DOWN;
+    move_opt();
 }
 
 void setup()
 {
     button_joystick._init_();
+    //button_joystick.on_press(pick_option);
     button_joystick.on_press(start);
+
     joystick._init_();
+    //joystick.on_dir_up(move_up_opt);
+    //joystick.on_dir_down(move_down_opt);
+
     joystick.on_dir_down(down);
-    joystick.on_dir_up(up);
     joystick.on_dir_left(left);
     joystick.on_dir_right(right);
+    joystick.on_dir_up(up);
 
     Serial.begin(921600);
     tft.init();
@@ -491,6 +676,28 @@ void setup()
     player_vision.load_ray_casting(0.035, 6.28, 10, color);
 
     player._init_();
+
+    options._init_(9);
+    options.create_option(0,0,"START",3,false);
+    options.create_option(0,1, "SETTINGS",3,false);
+
+    options.create_option(1,0, "SPAWN POINT", 3, false);
+    options.create_option(1,1, "MAZE SIZE",3,false);
+    options.create_option(1,2,"BACK",3,false);
+
+    options.create_option(2,0, "DEFAULT",3,true); // spawn point
+    options.create_option(2,1, "CENTER",3,false);
+    options.create_option(2,2, "OPPOSITE", 3, false);
+    options.create_option(2,3, "BACK", 3,false); //end
+
+    options.create_option(3,0, "128x96",3, false); // sizes
+    options.create_option(3,1,"64x48",3, true ); 
+    options.create_option(3,2, "32x24", 3, false);
+    options.create_option(3,3,"BACK", 3,false);
+
+    //options.draw(0,0);
+    //finished = false;
+
     introduction();
 }
 
