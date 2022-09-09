@@ -75,11 +75,8 @@ Options options(&tft);
 int8_t current_layer = 0;
 int8_t current_option = 0;
 
-int8_t prev_pick_layer_2 = 0;
-int8_t prev_pick_layer_3 = 0;
-
 int8_t prev_pick_opt_2 = 0;
-int8_t prev_pick_opt_3 = 0;
+int8_t prev_pick_opt_3 = 1;
 
 bool default_spawn = true;
 bool center_spawn = false;
@@ -340,7 +337,7 @@ void ending_scene()
             gradient_letters("NO OFFENSE, JUST SUPERIOR HUMAN BEING :^)0",text_color.hue, 9.5);
         }
         else{
-            gradient_letters("THAT WAS AMAZING!0", text_color.hue, 23);
+            gradient_letters("A-MAZING!0", text_color.hue, 23);
         }
     }
     else if (score<=450)
@@ -398,6 +395,7 @@ void ending_scene()
     text_color.hue = 360;
     tft.setTextColor(HSV_to_RGB(text_color)) ;tft.print(" 1400+");
 
+    tft.setTextFont(1);
     tft.setRotation(0);
     text_color.hue = 100;
     tft.setTextColor(TFT_WHITE);
@@ -473,17 +471,20 @@ void fading_effect(const char str [], uint8_t size ,HSV starting_color, uint8_t 
 {
     uint8_t hue = starting_color.hue;
     uint8_t i=0;
+
+    uint8_t half_size = (size >> 1);
     while (i<size)
     {
         tft.setTextColor(HSV_to_RGB(starting_color));
         tft.print(str[i]);
-        if (i<size/2-1)
+        if (i<half_size)
         {
             starting_color.hue += itr;
         }
         else{
             starting_color.hue -= itr;
         }
+        starting_color.hue = fmod(starting_color.hue, 360);
         i++;
     }
     starting_color.hue = hue;
@@ -491,14 +492,13 @@ void fading_effect(const char str [], uint8_t size ,HSV starting_color, uint8_t 
 
 void introduction()
 {
-    tft.setCursor(80,0);
-    tft.fillScreen(TFT_BLACK);
-    tft.setTextFont(2);
+    tft.setCursor(90,30);
     tft.setRotation(1);
     tft.setTextSize(3);
 
-    HSV fading_color = {200,100,100};
-    fading_effect("MAZE 2D", 8, fading_color, 20);
+    HSV fading_color = {260,100,100};
+    fading_effect("MICROMAZE", 9, fading_color, 20);
+
 }
 
 
@@ -506,6 +506,11 @@ void move_opt()
 {
     uint8_t num_of_options = options.get_num_of_options_in_layer(current_layer);
     //Serial.println("NUM OF OPTIONS = "+String(num_of_options)+" CURRENT_OPT: "+String(current_option) + "  CURRENT LAYER: "+String(current_layer));
+    tft.fillScreen(TFT_BLACK);
+    if (current_layer == 0)
+    {
+        introduction();
+    }
     switch(option_dir)
     {
         case UP:
@@ -515,15 +520,14 @@ void move_opt()
             current_option = current_option == num_of_options-1 ? 0 : current_option+1;
             break;
     }
-    tft.fillScreen(TFT_BLACK);
     options.draw(current_layer, current_option);
 }
 
 void pick_option()
 {
+    tft.fillScreen(TFT_BLACK);
     if (current_layer == 0)
     {
-        //introduction();
         switch(current_option)
         {
             case 0:
@@ -560,30 +564,27 @@ void pick_option()
             case 0:
                 default_spawn = true;
                 center_spawn = false;
-                options.set_mark(false,prev_pick_opt_2, prev_pick_layer_2);
-                options.set_mark(true,current_option, current_layer);
+                options.set_mark(false,prev_pick_opt_2, 2);
+                options.set_mark(true,current_option, 2);
 
-                prev_pick_layer_2 = current_layer;
                 prev_pick_opt_2 = current_option;
                 break;
             case 1:
                 default_spawn = false;
                 center_spawn = true;
 
-                options.set_mark(false,prev_pick_opt_2, prev_pick_layer_2);
-                options.set_mark(true,current_option, current_layer);
+                options.set_mark(false,prev_pick_opt_2, 2);
+                options.set_mark(true,current_option, 2);
 
-                prev_pick_layer_2 = current_layer;
                 prev_pick_opt_2 = current_option;
                 break;
             case 2:
                 default_spawn = false;
                 center_spawn = false;
 
-                options.set_mark(false,prev_pick_opt_2, prev_pick_layer_2);
-                options.set_mark(true,current_option, current_layer);
+                options.set_mark(false,prev_pick_opt_2, 2);
+                options.set_mark(true,current_option, 2);
 
-                prev_pick_layer_2 = current_layer;
                 prev_pick_opt_2 = current_option;
                 break;
             case 3:
@@ -599,35 +600,37 @@ void pick_option()
                 number_of_cols = 96;
                 number_of_rows = 128;
 
-                options.set_mark(false,prev_pick_opt_3, prev_pick_layer_3);
-                options.set_mark(true,current_option, current_layer);
+                options.set_mark(false,prev_pick_opt_3, 3);
+                options.set_mark(true,current_option, 3);
 
-                prev_pick_layer_3 = current_layer;
                 prev_pick_opt_3 = current_option;
                 break;
             case 1:
                 number_of_cols = 48;
                 number_of_rows = 64;
-                options.set_mark(false,prev_pick_opt_3, prev_pick_layer_3);
-                options.set_mark(true,current_option, current_layer);
+                options.set_mark(false,prev_pick_opt_3, 3);
+                options.set_mark(true,current_option, 3);
 
-                prev_pick_layer_3 = current_layer;
                 prev_pick_opt_3 = current_option;
                 break;
             case 2:
                 number_of_cols = 24;
                 number_of_rows = 32;
 
-                options.set_mark(false,prev_pick_opt_3, prev_pick_layer_3);
-                options.set_mark(true,current_option, current_layer);
+                options.set_mark(false,prev_pick_opt_3, 3);
+                options.set_mark(true,current_option, 3);
 
-                prev_pick_layer_3 = current_layer;
                 prev_pick_opt_3 = current_option;
                 break;
             case 3:
                 current_layer = 1;
                 current_option=0;
         }
+    }
+
+    if (current_layer == 0)
+    {
+        introduction();
     }
     options.draw(current_layer,current_option);
 }
@@ -647,37 +650,37 @@ void move_down_opt()
 void setup()
 {
     button_joystick._init_();
-    //button_joystick.on_press(pick_option);
-    button_joystick.on_press(start);
+    button_joystick.on_press(pick_option);
+    //button_joystick.on_press(start);
 
     joystick._init_();
-    //joystick.on_dir_up(move_up_opt);
-    //joystick.on_dir_down(move_down_opt);
 
-    joystick.on_dir_down(down);
-    joystick.on_dir_left(left);
-    joystick.on_dir_right(right);
-    joystick.on_dir_up(up);
+    joystick.on_dir_up(move_up_opt);
+    joystick.on_dir_down(move_down_opt);
+
+    // joystick.on_dir_down(down);
+    // joystick.on_dir_left(left);
+    // joystick.on_dir_right(right);
+    // joystick.on_dir_up(up);
 
     Serial.begin(921600);
     tft.init();
 
-    maze_gen._init_();
-    maze_gen.create_generators(7, sec_map,number_of_cols,number_of_rows);
-    maze_gen.generate_maze(7,5,13);
-    maze_gen.delte_nodes();
+    // maze_gen._init_();
+    // maze_gen.create_generators(7, sec_map,number_of_cols,number_of_rows);
+    // maze_gen.generate_maze(7,5,13);
+    // maze_gen.delte_nodes();
 
-    world_map.set_map(sec_map,number_of_rows,number_of_cols, 0, 128, 153);
-    tft.fillScreen(TFT_BLACK);
+    //world_map.set_map(sec_map,number_of_rows,number_of_cols, 0, 128, 153);
 
-    door.generate_door(9);
+    //door.generate_door(9);
 
-    player_vision.load_map(sec_map,number_of_cols, number_of_rows, NUMBER_OF_COL_MAP, NUMBER_OF_ROWS_MAP,convert_to_RGB(2, 96, 173));
-    player_vision.load_ray_casting(0.035, 6.28, 10, color);
+    //player_vision.load_map(sec_map,number_of_cols, number_of_rows, NUMBER_OF_COL_MAP, NUMBER_OF_ROWS_MAP,convert_to_RGB(2, 96, 173));
+    //player_vision.load_ray_casting(0.035, 6.28, 10, color);
 
-    player._init_();
+    //player._init_();
 
-    options._init_(9);
+    options._init_(13);
     options.create_option(0,0,"START",3,false);
     options.create_option(0,1, "SETTINGS",3,false);
 
@@ -695,10 +698,10 @@ void setup()
     options.create_option(3,2, "32x24", 3, false);
     options.create_option(3,3,"BACK", 3,false);
 
-    //options.draw(0,0);
-    //finished = false;
-
+    tft.fillScreen(TFT_BLACK);
     introduction();
+    options.draw(0,0);
+    finished = false;
 }
 
 void loop()

@@ -61,7 +61,6 @@ void Options::draw(uint8_t layer, uint8_t current_option_idx)
     }
 
     _tft->setRotation(1);
-    _tft->fillScreen(TFT_BLACK);
     _tft->setTextColor(TFT_WHITE);
 
     if (normal_options[idx].size > 2)
@@ -70,6 +69,11 @@ void Options::draw(uint8_t layer, uint8_t current_option_idx)
     }
     bool t=false;
     uint16_t y=40;
+
+    if (layer == 0)
+    {
+        y+= 40;
+    }
     while(normal_options[idx].layer == layer)
     {
         if (normal_options[idx].option_idx == current_option_idx)
@@ -117,11 +121,11 @@ void Options::set_mark(bool mark, uint8_t opt_idx, uint8_t layer)
 uint16_t Options::calculate_starting_x(uint8_t text_size, uint8_t str_size)
 {
     float max_char = _tft->width()/text_size;
-    max_char /= 8;
+    max_char /= 6;
 
     // Serial.println("STR_SIZE: "+String(str_size));
     // Serial.println("TEXT_SIZE: "+String(text_size)+ " max_num_of_char = "+String(max_char));
-    return (round(max_char) - str_size)*4*text_size;
+    return (round(max_char) - str_size)*3*text_size;
 }
 
 uint16_t Options::calculate_y(uint8_t text_size)
