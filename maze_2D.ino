@@ -222,14 +222,29 @@ void reset()
         }
     }
 
-    maze_gen.create_generators(5,sec_map,number_of_cols,number_of_rows);
-    maze_gen.generate_maze(6,5,13);
+    maze_gen.create_generators(5,number_of_cols,number_of_rows);
+    uint8_t num_of_gen = 7;
+    if (number_of_cols > 48)
+    {
+        num_of_gen = 12;
+    }
+    maze_gen.generate_maze(num_of_gen,5,13);
     maze_gen.delte_nodes();
 
+    world_map.set_map(maze_gen.get_maze(),number_of_rows,number_of_cols, 0, 128, 153);
 
     door.clear_map();
     door_dir = door.generate_door(9);
 
+    uint8_t col = number_of_cols/2;
+    uint8_t rows = number_of_rows/2;
+
+    if (number_of_cols >= 48 )
+    {
+        col = 24;
+        rows = 32;
+    }
+    player_vision.load_map(maze_gen.get_maze(),number_of_cols, number_of_rows, col , rows ,convert_to_RGB(2, 96, 173));
 
     if (center_spawn)
     {
@@ -249,8 +264,12 @@ void reset()
         set_opposite_spawn_point();
     }
 
+
+    uint8_t w = tft.width()/(number_of_cols);
+    uint8_t h = tft.height()/(number_of_rows);
     player.set_player_posistion(starting_point);
     world_map.draw_map();
+    tft.fillRect(starting_point.x * w, starting_point.y * h, w, h, TFT_WHITE);
     map_time = millis();
     button_pressed=0;
     finished = false;
@@ -449,21 +468,64 @@ void move(uint8_t dir)
 
 void start()
 {
+    tft.fillScreen(TFT_BLACK);
     tft.setCursor(0,0);
     tft.setRotation(0);
-    tft.fillScreen(TFT_BLACK);
     tft.setTextSize(1);
 
     map_time = millis();
+
+    joystick.on_dir_down(down);
+    joystick.on_dir_left(left);
+    joystick.on_dir_right(right);
+    joystick.on_dir_up(up);
+
+    maze_gen.create_generators(7,number_of_cols,number_of_rows);
+
+    uint8_t num_of_gen = 7;
+    if (number_of_cols > 48)
+    {
+        num_of_gen = 12;
+    }
+    maze_gen.generate_maze(num_of_gen,5,13);
+    maze_gen.delte_nodes();
+
+    world_map.set_map(maze_gen.get_maze(),number_of_rows,number_of_cols, 0, 128, 153);
+
+    door_dir = door.generate_door(9);
+
+    if (center_spawn || default_spawn)
+    {
+        set_center_spawn_point();
+    }
+    else{
+        set_opposite_spawn_point();
+    }
+
+    uint8_t col = number_of_cols/2;
+    uint8_t rows = number_of_rows/2;
+
+    if (number_of_cols >= 48 )
+    {
+        col = 24;
+        rows = 32;
+    }
+    player_vision.load_map(maze_gen.get_maze(),number_of_cols, number_of_rows, col , rows ,convert_to_RGB(2, 96, 173));
+
+    player_vision.load_ray_casting(0.035, 6.28, 10, color);
+
+    player._init_();
 
     world_map.draw_map();
 
     button_joystick.on_press(show_vision);
     finished=false;
 
-    set_center_spawn_point();
-
     player.set_player_posistion(starting_point);
+
+    uint8_t w = tft.width()/(number_of_cols);
+    uint8_t h = tft.height()/(number_of_rows);
+    tft.fillRect(starting_point.x * w, starting_point.y * h, w, h, TFT_WHITE);
     player_vision.load_player(convert_to_RGB(176, 168, 111),convert_to_RGB(99, 5, 14), 0, player.get_current_player_position());
 }
 
@@ -490,7 +552,7 @@ void fading_effect(const char str [], uint8_t size ,HSV starting_color, uint8_t 
     starting_color.hue = hue;
 }
 
-void introduction()
+void print_game_title()
 {
     tft.setCursor(90,30);
     tft.setRotation(1);
@@ -509,7 +571,7 @@ void move_opt()
     tft.fillScreen(TFT_BLACK);
     if (current_layer == 0)
     {
-        introduction();
+        print_game_title();
     }
     switch(option_dir)
     {
@@ -532,7 +594,7 @@ void pick_option()
         {
             case 0:
                 start();
-                break;
+                return;
             case 1:
                 current_layer++;
                 current_option=0;
@@ -630,7 +692,7 @@ void pick_option()
 
     if (current_layer == 0)
     {
-        introduction();
+        print_game_title();
     }
     options.draw(current_layer,current_option);
 }
@@ -651,34 +713,15 @@ void setup()
 {
     button_joystick._init_();
     button_joystick.on_press(pick_option);
-    //button_joystick.on_press(start);
 
     joystick._init_();
-
     joystick.on_dir_up(move_up_opt);
     joystick.on_dir_down(move_down_opt);
-
-    // joystick.on_dir_down(down);
-    // joystick.on_dir_left(left);
-    // joystick.on_dir_right(right);
-    // joystick.on_dir_up(up);
 
     Serial.begin(921600);
     tft.init();
 
-    // maze_gen._init_();
-    // maze_gen.create_generators(7, sec_map,number_of_cols,number_of_rows);
-    // maze_gen.generate_maze(7,5,13);
-    // maze_gen.delte_nodes();
-
-    //world_map.set_map(sec_map,number_of_rows,number_of_cols, 0, 128, 153);
-
-    //door.generate_door(9);
-
-    //player_vision.load_map(sec_map,number_of_cols, number_of_rows, NUMBER_OF_COL_MAP, NUMBER_OF_ROWS_MAP,convert_to_RGB(2, 96, 173));
-    //player_vision.load_ray_casting(0.035, 6.28, 10, color);
-
-    //player._init_();
+    maze_gen._init_();
 
     options._init_(13);
     options.create_option(0,0,"START",3,false);
@@ -699,7 +742,7 @@ void setup()
     options.create_option(3,3,"BACK", 3,false);
 
     tft.fillScreen(TFT_BLACK);
-    introduction();
+    print_game_title();
     options.draw(0,0);
     finished = false;
 }

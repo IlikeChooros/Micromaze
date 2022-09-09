@@ -22,12 +22,33 @@ void Maze_generator::_init_()
 //            3
 
 
-void Maze_generator::create_generators(uint8_t starting_pos, uint8_t *matrix, uint8_t number_of_col, uint8_t number_of_rows)
+void Maze_generator::create_generators(uint8_t starting_pos, uint8_t number_of_col, uint8_t number_of_rows)
 {
     _number_of_cols = number_of_col;
     _number_of_rows = number_of_rows;
     _starting_pos = starting_pos;
-    _map = matrix;
+    _map = new uint8_t[number_of_col*number_of_rows];
+
+    for (uint16_t i=0;i<number_of_rows;i++)
+    {
+        for (uint16_t j=0;j<number_of_col;j++)
+        {
+            _map[i*number_of_col + j]=0;
+        }
+    }
+
+    for (uint16_t y = 0; y<number_of_rows;y++)
+    {
+        _map[y * number_of_col] = 1;
+        _map[y*number_of_col + number_of_col - 1] = 1;
+    }
+
+    uint16_t p = number_of_col*number_of_rows;
+    for (uint16_t x = 0; x<number_of_col;x++)
+    {
+        _map[x]=1;
+        _map[p - 1 - x] = 1;
+    }
 
     Node *head;
 
@@ -70,6 +91,11 @@ void Maze_generator::create_generators(uint8_t starting_pos, uint8_t *matrix, ui
     head = four_generators[3].get_node_head();
     //_map[head->point->y*_number_of_cols + head->point->x]=2;
     move_wall_right(head, _starting_pos, head->point->y* _number_of_cols + head->point->x);
+}
+
+uint8_t *Maze_generator::get_maze()
+{
+    return _map;
 }
 
 void Maze_generator::generate_maze(uint8_t num_of_gen, uint8_t min_dist, uint8_t max_dist)
