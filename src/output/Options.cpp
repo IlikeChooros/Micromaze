@@ -16,63 +16,10 @@ void Options::_init_(uint8_t number_of_normal_opt, uint8_t num_of_sliders)
     normal_opt_idx = 0;
     slider_idx = 0;
 
-    num_of_sliders = 0;
     if (num_of_sliders>0)
     {
         sliders = new Slider[num_of_sliders];
     }
-}
-
-void Options::draw_slider(uint8_t layer, uint8_t curr_sli_idx)
-{
-    uint8_t y,idx;
-    for (uint8_t i=0;i<slider_idx;i++)
-    {
-        if (sliders[i].layer == layer)
-        {
-            idx = i;
-            break;
-        }
-    }
-
-    y = 0;
-
-    if (sliders[idx].size > 2)
-    {
-        _tft->setTextSize(sliders[idx].size);
-    }
-
-    _tft->setRotation(1);
-    _tft->setTextColor(TFT_WHITE);
-
-    bool t=false;
-
-    while(sliders[idx].layer == layer)
-    {
-        if (sliders[idx].option_idx == curr_sli_idx)
-        {
-            _tft->setTextColor(TFT_GREEN);
-            t = true;
-        }
-        
-        y = 40 + (sliders[idx].option_idx+1)*calculate_y(sliders[idx].size);
-        _tft->setCursor(calculate_starting_x(sliders[idx].size, sliders[idx].str_len), y);
-        _tft->print(sliders[idx].option_name);
-
-        if (t)
-        {
-            _tft->setTextColor(TFT_WHITE);
-        }
-        
-        idx++;
-        if (idx == slider_idx)
-        {
-            break;
-        }
-    }
-
-    _tft->setTextSize(1);
-    _tft->setRotation(0);
 }
 
 void Options::create_slider(uint8_t layer, uint8_t option_idx, const char option_name[], uint8_t starting_num, uint8_t text_size, uint8_t itr)
@@ -123,6 +70,14 @@ uint8_t Options::get_num_of_options_in_layer(int8_t layer)
             counter++;
         }
     }
+
+    for (uint8_t i=0;i<slider_idx;i++)
+    {
+        if(sliders[i].layer == layer)
+        {
+            counter++;
+        }
+    }
     return counter;
 }
 
@@ -164,7 +119,7 @@ void Options::draw(uint8_t layer, uint8_t current_option_idx)
         y = starting_val + ((normal_options[idx].option_idx+1) * calculate_y(normal_options[idx].size));
         _tft->setCursor(calculate_starting_x(normal_options[idx].size, normal_options[idx].str_len), y);
 
-        Serial.println(" Y: "+String(y) + ",   40 + "+ String(starting_val)+ " + ("+String(normal_options[idx].option_idx + 1)+ ") * "+ String(calculate_y(normal_options[idx].size)));
+        
         _tft->print(normal_options[idx].option_name);
         if (normal_options[idx].marked)
         {
@@ -177,7 +132,59 @@ void Options::draw(uint8_t layer, uint8_t current_option_idx)
         }
         
         idx++;
-        if (idx == normal_opt_idx)
+    }
+
+    if (slider_idx>0)
+    {
+        draw_slider(layer, current_option_idx);
+    }
+
+    _tft->setTextSize(1);
+    _tft->setRotation(0);
+}
+
+void Options::draw_slider(uint8_t layer, uint8_t curr_sli_idx)
+{
+    uint8_t y, idx;
+    for (uint8_t i=0;i<slider_idx;i++)
+    {
+        if (sliders[i].layer == layer)
+        {
+            idx = i;
+            break;
+        }
+    }
+
+    _tft->setTextSize(sliders[idx].size);
+    _tft->setRotation(1);
+    _tft->setTextColor(TFT_WHITE);
+
+    bool t=false;
+
+    while(sliders[idx].layer == layer)
+    {
+        if (sliders[idx].option_idx == curr_sli_idx)
+        {
+            _tft->setTextColor(TFT_GREEN);
+            t = true;
+        }
+
+        y = (sliders[idx].option_idx+1)*calculate_y(sliders[idx].size);
+        _tft->setCursor(calculate_starting_x(sliders[idx].size, sliders[idx].str_len + 5)- 20, y);
+        _tft->print(sliders[idx].option_name);
+        _tft->print(" <");
+        _tft->print(String(sliders[idx].current_val));
+        _tft->print(">");
+
+        //Serial.println(" Y: "+String(y) + ",   0"+ " + ("+String(sliders[idx].option_idx + 1)+ ") * "+ String(calculate_y(sliders[idx].size)));
+
+        if (t)
+        {
+            _tft->setTextColor(TFT_WHITE);
+        }
+        
+        idx++;
+        if (idx == slider_idx)
         {
             break;
         }
@@ -186,6 +193,43 @@ void Options::draw(uint8_t layer, uint8_t current_option_idx)
     _tft->setTextSize(1);
     _tft->setRotation(0);
 }
+
+void Options::increment_slider(uint8_t layer, uint8_t opt_idx)
+{
+    for (uint8_t i=0; i<slider_idx;i++)
+    {
+        if ((sliders[i].layer == layer) && (sliders[i].option_idx == opt_idx))
+        {
+            sliders[i].current_val += sliders[i].itr;
+            return;
+        }
+    }
+}
+
+void Options::decrement_slider(uint8_t layer, uint8_t opt_idx)
+{
+    for (uint8_t i=0;i<slider_idx;i++)
+    {
+        if ( (sliders[i].layer == layer) && (sliders[i].option_idx == opt_idx))
+        {
+            sliders[i].current_val -= sliders[i].itr;
+            return;
+        }
+    }
+}
+
+uint8_t Options::get_value(uint8_t layer, uint8_t opt_idx)
+{
+    for (uint8_t i=0;i<slider_idx;i++)
+    {
+        if ((sliders[i].layer == layer) && (sliders[i].option_idx == opt_idx))
+        {
+            return sliders[i].current_val;
+        }
+    }
+    return 0;
+}
+
 
 void Options::set_mark(bool mark, uint8_t opt_idx, uint8_t layer)
 {
