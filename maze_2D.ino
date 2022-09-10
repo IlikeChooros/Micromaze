@@ -694,6 +694,11 @@ void pick_option()
             case 2:
                 joystick.on_dir_left(do_nothing);
                 joystick.on_dir_right(do_nothing);
+                for (uint8_t i=0;i<4;i++)
+                {
+                    options.set_mark(false, i, 3);
+                }
+                
 
                 number_of_rows = options.get_value(4,0);
                 number_of_cols = options.get_value(4,1);
