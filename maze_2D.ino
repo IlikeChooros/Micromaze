@@ -73,6 +73,11 @@ int8_t prev_pick_opt_3 = 1;
 bool default_spawn = true;
 bool center_spawn = false;
 
+void do_nothing()
+{
+    return;
+}
+
 uint32_t convert_to_RGB(uint8_t r, uint8_t g, uint8_t b)
 {
     uint32_t RGB;
@@ -186,7 +191,6 @@ void set_opposite_spawn_point()
         }
     }
 }
-
 
 void set_center_spawn_point()
 {
@@ -535,12 +539,24 @@ void print_game_title()
 
 }
 
+void increment_slider()
+{
+    tft.fillScreen(TFT_BLACK);
+    options.increment_slider(current_layer, current_option);
+    options.draw(current_layer, current_option);
+}
+
+void decrement_slider()
+{
+    tft.fillScreen(TFT_BLACK);
+    options.decrement_slider(current_layer, current_option);
+    options.draw(current_layer, current_option);
+}
 
 void move_opt()
 {
     uint8_t num_of_options = options.get_num_of_options_in_layer(current_layer);
     //Serial.println("NUM OF OPTIONS = "+String(num_of_options)+" CURRENT_OPT: "+String(current_option) + "  CURRENT LAYER: "+String(current_layer));
-    tft.fillScreen(TFT_BLACK);
     if (current_layer == 0)
     {
         print_game_title();
@@ -627,7 +643,8 @@ void pick_option()
         }
     }
 
-    else{
+    else if (current_layer == 3)
+    {
         switch (current_option)
         {
             case 0:
@@ -657,7 +674,31 @@ void pick_option()
                 prev_pick_opt_3 = current_option;
                 break;
             case 3:
+                current_layer++;
+                current_option=0;
+                break;
+
+            case 4:
                 current_layer = 1;
+                current_option=0;
+        }
+    }
+
+    else{
+        switch(current_option)
+        {
+            case 0:
+                break;
+            case 1:
+                break;
+            case 2:
+                joystick.on_dir_left(do_nothing);
+                joystick.on_dir_right(do_nothing);
+
+                number_of_rows = options.get_value(4,0);
+                number_of_cols = options.get_value(4,1);
+
+                current_layer--;
                 current_option=0;
         }
     }
@@ -665,6 +706,12 @@ void pick_option()
     if (current_layer == 0)
     {
         print_game_title();
+    }
+
+    else if(current_layer == 4)
+    {
+        joystick.on_dir_left(decrement_slider);
+        joystick.on_dir_right(increment_slider);
     }
     options.draw(current_layer,current_option);
 }
@@ -695,7 +742,9 @@ void setup()
 
     maze_gen._init_();
 
-    options._init_(14,0);
+    options._init_(15,2);
+
+
     options.create_option(0,0,"START",3,false);
     options.create_option(0,1, "SETTINGS",3,false);
 
@@ -711,7 +760,12 @@ void setup()
     options.create_option(3,0, "160x120",3, false); // sizes
     options.create_option(3,1,"64x48",3, true ); 
     options.create_option(3,2, "32x24", 3, false);
-    options.create_option(3,3,"BACK", 3,false);
+    options.create_option(3,3, "CUSTOM",3, false);
+    options.create_option(3,4,"BACK", 3,false);
+
+    options.create_slider(4,0, "(|||) ROWS", 64,3,2); //custom
+    options.create_slider(4,1, "(---) COLS",48,3,2);
+    options.create_option(4,2,"BACK",3,false);
 
     tft.fillScreen(TFT_BLACK);
     print_game_title();

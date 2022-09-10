@@ -52,6 +52,7 @@ class Options
     void set_mark(bool mark, uint8_t opt_idx, uint8_t layer);
     void increment_slider(uint8_t layer, uint8_t option_idx);
     void decrement_slider(uint8_t layer, uint8_t option_idx);
+    uint8_t get_value(uint8_t layer, uint8_t slider_idx);
     uint8_t get_num_of_options_in_layer(int8_t layer);
 };
 
