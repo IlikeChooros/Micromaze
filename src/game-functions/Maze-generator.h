@@ -35,8 +35,9 @@ class Maze_generator
     void _init_();
     void create_generators(uint8_t starting_pos, uint8_t number_of_col, uint8_t number_of_rows);
     void generate_maze(uint8_t number_of_generations, uint8_t min_dist, uint8_t max_dist);
-    void delte_nodes();
+    void delete_nodes();
     uint8_t * get_maze();
+    void delete_map();
 };
 
 

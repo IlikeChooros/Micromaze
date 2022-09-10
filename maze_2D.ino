@@ -2,7 +2,6 @@
 #include "src/input/Button.h"
 #include "src/output/Matrix_map.h"
 #include "src/output/Player_tft.h"
-#include "src/output/Level_maps.h"
 #include "src/output/Options.h"
 #include "src/game-functions/Door.h"
 #include "src/game-functions/Maze-generator.h"
@@ -38,13 +37,6 @@ HSV color[]={ // 0 -> wall, 1-> door color, 3 -> node color (wall)
 };
 
 Door door(&tft, &world_map);
-
-uint8_t map_idx=1;
-
-uint8_t *all_maps[2]={
-    first_map,
-    second_map
-};
 
 Point collision_point;
 Point starting_point (0,0);
@@ -138,6 +130,12 @@ uint32_t HSV_to_RGB(HSV color_hsv)
     );
 }
 
+void show_vision()
+{
+    button_pressed++;
+    player_vision.draw_vision(player.get_current_player_position());
+}
+
 bool set_starting_position(uint8_t y, uint8_t x_margin)
 {
     uint8_t width_of_segment = tft.width()/(number_of_cols);
@@ -145,7 +143,7 @@ bool set_starting_position(uint8_t y, uint8_t x_margin)
 
     for (uint8_t x = x_margin - 2;x<x_margin +3;x++)
     {
-        if (sec_map[y*number_of_cols+x]==0)
+        if (maze_gen.get_maze()[y*number_of_cols+x]==0)
         {
             starting_point.x=x;
             starting_point.y=y;
@@ -155,13 +153,6 @@ bool set_starting_position(uint8_t y, uint8_t x_margin)
     }
     return false;
 }
-
-void show_vision()
-{
-    button_pressed++;
-    player_vision.draw_vision(player.get_current_player_position());
-}
-
 
 void set_opposite_spawn_point()
 {
@@ -208,20 +199,8 @@ void set_center_spawn_point()
     }
 }
 
-void reset()
+void generate_maze()
 {
-    button_joystick.on_press(show_vision);
-
-    tft.fillScreen(TFT_BLACK);
-
-    for (uint8_t y = 1;y<number_of_rows-1;y++)
-    {
-        for(uint8_t x=1;x<number_of_cols-1;x++)
-        {
-            sec_map[y*number_of_cols+x]=0;
-        }
-    }
-
     maze_gen.create_generators(5,number_of_cols,number_of_rows);
     uint8_t num_of_gen = 7;
     if (number_of_cols > 48)
@@ -229,13 +208,11 @@ void reset()
         num_of_gen = 12;
     }
     maze_gen.generate_maze(num_of_gen,5,13);
-    maze_gen.delte_nodes();
+    maze_gen.delete_nodes();
+}
 
-    world_map.set_map(maze_gen.get_maze(),number_of_rows,number_of_cols, 0, 128, 153);
-
-    door.clear_map();
-    door_dir = door.generate_door(9);
-
+void load_player_vision()
+{
     uint8_t col = number_of_cols/2;
     uint8_t rows = number_of_rows/2;
 
@@ -245,31 +222,44 @@ void reset()
         rows = 32;
     }
     player_vision.load_map(maze_gen.get_maze(),number_of_cols, number_of_rows, col , rows ,convert_to_RGB(2, 96, 173));
+}
 
-    if (center_spawn)
+void draw_player_on_map()
+{
+    uint8_t w = tft.width()/(number_of_cols);
+    uint8_t h = tft.height()/(number_of_rows);
+    tft.fillRect(starting_point.x * w, starting_point.y * h, w, h, TFT_WHITE);
+}
+
+void reset()
+{
+    button_joystick.on_press(show_vision);
+
+    tft.fillScreen(TFT_BLACK);
+
+    maze_gen.delete_map();
+    generate_maze();
+
+    world_map.set_map(maze_gen.get_maze(),number_of_rows,number_of_cols, 0, 128, 153);
+
+    door.clear_map();
+    door_dir = door.generate_door(9);
+
+    load_player_vision();
+
+    if (center_spawn || (default_spawn && !(completed_game_with_high_score > 1)))
     {
         set_center_spawn_point();
-    }
-    else if(default_spawn)
-    {
-        if (completed_game_with_high_score>1)
-        {
-            set_opposite_spawn_point();
-        }
-        else{
-            set_center_spawn_point();
-        }
     }
     else{
         set_opposite_spawn_point();
     }
 
-
-    uint8_t w = tft.width()/(number_of_cols);
-    uint8_t h = tft.height()/(number_of_rows);
     player.set_player_posistion(starting_point);
+
     world_map.draw_map();
-    tft.fillRect(starting_point.x * w, starting_point.y * h, w, h, TFT_WHITE);
+    draw_player_on_map();
+
     map_time = millis();
     button_pressed=0;
     finished = false;
@@ -480,15 +470,7 @@ void start()
     joystick.on_dir_right(right);
     joystick.on_dir_up(up);
 
-    maze_gen.create_generators(7,number_of_cols,number_of_rows);
-
-    uint8_t num_of_gen = 7;
-    if (number_of_cols > 48)
-    {
-        num_of_gen = 12;
-    }
-    maze_gen.generate_maze(num_of_gen,5,13);
-    maze_gen.delte_nodes();
+    generate_maze();
 
     world_map.set_map(maze_gen.get_maze(),number_of_rows,number_of_cols, 0, 128, 153);
 
@@ -502,15 +484,7 @@ void start()
         set_opposite_spawn_point();
     }
 
-    uint8_t col = number_of_cols/2;
-    uint8_t rows = number_of_rows/2;
-
-    if (number_of_cols >= 48 )
-    {
-        col = 24;
-        rows = 32;
-    }
-    player_vision.load_map(maze_gen.get_maze(),number_of_cols, number_of_rows, col , rows ,convert_to_RGB(2, 96, 173));
+    load_player_vision();
 
     player_vision.load_ray_casting(0.035, 6.28, 10, color);
 
@@ -523,9 +497,7 @@ void start()
 
     player.set_player_posistion(starting_point);
 
-    uint8_t w = tft.width()/(number_of_cols);
-    uint8_t h = tft.height()/(number_of_rows);
-    tft.fillRect(starting_point.x * w, starting_point.y * h, w, h, TFT_WHITE);
+    draw_player_on_map();
     player_vision.load_player(convert_to_RGB(176, 168, 111),convert_to_RGB(99, 5, 14), 0, player.get_current_player_position());
 }
 
@@ -659,8 +631,8 @@ void pick_option()
         switch (current_option)
         {
             case 0:
-                number_of_cols = 96;
-                number_of_rows = 128;
+                number_of_cols = 60;
+                number_of_rows = 80;
 
                 options.set_mark(false,prev_pick_opt_3, 3);
                 options.set_mark(true,current_option, 3);
@@ -723,7 +695,7 @@ void setup()
 
     maze_gen._init_();
 
-    options._init_(13);
+    options._init_(14,0);
     options.create_option(0,0,"START",3,false);
     options.create_option(0,1, "SETTINGS",3,false);
 
@@ -734,9 +706,9 @@ void setup()
     options.create_option(2,0, "DEFAULT",3,true); // spawn point
     options.create_option(2,1, "CENTER",3,false);
     options.create_option(2,2, "OPPOSITE", 3, false);
-    options.create_option(2,3, "BACK", 3,false); //end
+    options.create_option(2,3, "BACK", 3,false);
 
-    options.create_option(3,0, "128x96",3, false); // sizes
+    options.create_option(3,0, "160x120",3, false); // sizes
     options.create_option(3,1,"64x48",3, true ); 
     options.create_option(3,2, "32x24", 3, false);
     options.create_option(3,3,"BACK", 3,false);

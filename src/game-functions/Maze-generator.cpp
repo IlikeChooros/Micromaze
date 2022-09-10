@@ -98,10 +98,21 @@ uint8_t *Maze_generator::get_maze()
     return _map;
 }
 
+void Maze_generator::delete_map()
+{
+    delete [] _map;
+}
+
+
 void Maze_generator::generate_maze(uint8_t num_of_gen, uint8_t min_dist, uint8_t max_dist)
 {
     _number_of_generations = num_of_gen;
 
+    if (!_map)
+    {
+        return;
+    }
+    
     uint8_t i=0;
     for (;i<num_of_gen;)
     {
@@ -110,7 +121,7 @@ void Maze_generator::generate_maze(uint8_t num_of_gen, uint8_t min_dist, uint8_t
     }
 }
 
-void Maze_generator::delte_nodes()
+void Maze_generator::delete_nodes()
 {
     for (uint8_t i=0;i<4;i++)
     {
