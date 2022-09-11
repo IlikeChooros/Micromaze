@@ -19,6 +19,8 @@
 #define ANALOG_Y 33
 #define NUMBER_OF_ROWS_MAP 32
 #define NUMBER_OF_COL_MAP 24
+#define LN_10 2.30258509
+#define a 100
 
 uint8_t number_of_cols = NUMBER_OF_COL_MAP*2;
 uint8_t number_of_rows = NUMBER_OF_ROWS_MAP*2;
@@ -206,11 +208,28 @@ void set_center_spawn_point()
 void generate_maze()
 {
     maze_gen.create_generators(5,number_of_cols,number_of_rows);
-    uint8_t num_of_gen = 7;
-    if (number_of_cols > 48)
-    {
-        num_of_gen = 12;
-    }
+    uint8_t num_of_gen;
+    uint8_t x;
+
+    double f;
+
+    x = number_of_cols > number_of_rows? number_of_cols : number_of_rows;
+
+    // f(x) = 9 * log_10 (x) - 9
+    // Using taylor series 
+    // for a = 100
+    // P(x) = f(a) + f'(a)*(x-a) + 1/2! * f''(a)*(x-a)^2 + 1/3! * f'''(a)*(x-a)^3 + ... 
+    // i get polynomial P(x) = 9 * log_10(100) - 9 + 9*(x-100) / (ln(10) * 100) - 9*(x-100)^2 / (2 * 100^2 * ln(10)) + 3 * (x-100)^3 / (100^3 * ln(10))
+    // P(x) = 9 + 9*(x-100)/(ln10 * 100) - 9 * (x-100)^2 / ( 2 * 100^2 * ln10) + 3*(x-100)^3 / (100^3 * ln10)
+
+    f = 10;
+    f +=9*(x-a)/(LN_10 * a);
+    f -= 9*(x-a)*(x-a)/(2*a*a* LN_10);
+    f += 3*(x-a)*(x-a)*(x-a)/(a*a*a * LN_10);
+    Serial.println(" f(" + String(x) + ") = "+String(f));
+
+    num_of_gen = round(f);
+
     maze_gen.generate_maze(num_of_gen,5,13);
     maze_gen.delete_nodes();
 }
@@ -648,8 +667,8 @@ void pick_option()
         switch (current_option)
         {
             case 0:
-                number_of_cols = 60;
-                number_of_rows = 80;
+                number_of_cols = 120;
+                number_of_rows = 160;
 
                 options.set_mark(false,prev_pick_opt_3, 3);
                 options.set_mark(true,current_option, 3);
