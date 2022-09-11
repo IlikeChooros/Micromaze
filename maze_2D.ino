@@ -580,8 +580,8 @@ void print_game_title()
     tft.setRotation(1);
     tft.setTextSize(3);
 
-    HSV fading_color = {260,100,100};
-    fading_effect("MICROMAZE", 9, fading_color, 20);
+    HSV fading_color = {180,82,90};
+    fading_effect("MICROMAZE", 9, fading_color, 5);
 
 }
 
