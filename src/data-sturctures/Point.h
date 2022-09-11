@@ -8,7 +8,7 @@ class Point
     public:
     uint8_t x;
     uint8_t y;
-    Point(uint8_t x, uint8_t y);
+    Point(uint8_t = 0, uint8_t = 0);
 };
 
 #endif

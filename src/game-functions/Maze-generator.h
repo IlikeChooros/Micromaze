@@ -1,16 +1,9 @@
 #ifndef _MAZE_GENERATOR_
 #define _MAZE_GENERATOR_
 
-#include "LinkedList.h"
+#include "../data-sturctures/LinkedList.h"
 
 #define UNUSED_PIN_ANALOG 26
-
-enum Wall_dir {
-    UP = 0,
-    DOWN = 1,
-    RIGHT = 2,
-    LEFT = 3
-};
 
 class Maze_generator
 {
@@ -20,6 +13,8 @@ class Maze_generator
 
     uint8_t _number_of_rows;
     uint8_t _number_of_cols;
+
+    uint8_t _number_of_generations;
 
     uint8_t _starting_pos;
 
@@ -32,15 +27,17 @@ class Maze_generator
     void move_wall_up(Node *node, uint8_t dist, uint16_t _pos);
     void move_wall_down(Node *node, uint8_t dist, uint16_t _pos);
 
-    void generate_part_maze(uint8_t generation);
+    void generate_part_maze(uint8_t generation, uint8_t min_dist, uint8_t max_dist);
 
-    void delete_unused_nodes(uint8_t i, uint8_t generator);
-    uint32_t to_power_3(uint8_t num);
+    void delete_unused_nodes(uint16_t size, uint8_t generator);
 
     public:
-    Maze_generator(uint8_t number_of_col, uint8_t number_of_rows,uint8_t *matrix, uint8_t starting_pos);
     void _init_();
-    void generate_maze();
+    void create_generators(uint8_t starting_pos, uint8_t number_of_col, uint8_t number_of_rows);
+    void generate_maze(uint8_t number_of_generations, uint8_t min_dist, uint8_t max_dist);
+    void delete_nodes();
+    uint8_t * get_maze();
+    void delete_map();
 };
 
 

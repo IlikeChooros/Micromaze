@@ -33,6 +33,7 @@ class Node
     Point *get_head();
     Node *get_node_head();
     Node *get_node_tail();
+    Point* delete_node(Node *node);
  };
 
 #endif
