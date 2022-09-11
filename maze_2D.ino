@@ -207,11 +207,10 @@ void set_center_spawn_point()
 
 void generate_maze()
 {
-    maze_gen.create_generators(5,number_of_cols,number_of_rows);
     uint8_t num_of_gen;
     uint8_t x;
 
-    double f;
+    float f;
 
     x = number_of_cols > number_of_rows? number_of_cols : number_of_rows;
 
@@ -219,8 +218,9 @@ void generate_maze()
     // Using taylor series 
     // for a = 100
     // P(x) = f(a) + f'(a)*(x-a) + 1/2! * f''(a)*(x-a)^2 + 1/3! * f'''(a)*(x-a)^3 + ... 
-    // i get polynomial P(x) = 9 * log_10(100) - 9 + 9*(x-100) / (ln(10) * 100) - 9*(x-100)^2 / (2 * 100^2 * ln(10)) + 3 * (x-100)^3 / (100^3 * ln(10))
-    // P(x) = 9 + 9*(x-100)/(ln10 * 100) - 9 * (x-100)^2 / ( 2 * 100^2 * ln10) + 3*(x-100)^3 / (100^3 * ln10)
+    // i get polynomial P(x) = 9 * log_10(100) - 9 + 9*(x-100) / (ln(100) * 100) - 9*(x-100)^2 / (2 * 100^2 * ln(100)) + 3 * (x-100)^3 / (100^3 * ln(100))
+    // P(x) = 9 + 9*(x-100)/(ln100 * 100) - 9 * (x-100)^2 / ( 2 * 100^2 * ln100) + 3*(x-100)^3 / (100^3 * ln100) 
+    // i used ln10 instead of ln100, to decrease the slope
 
     f = 10;
     f +=9*(x-a)/(LN_10 * a);
@@ -230,6 +230,9 @@ void generate_maze()
 
     num_of_gen = round(f);
 
+    x = number_of_cols < number_of_rows ? number_of_cols : number_of_rows;
+    x = random(x/8,x/4) + 2;
+    maze_gen.create_generators(x,number_of_cols,number_of_rows);
     maze_gen.generate_maze(num_of_gen,5,13);
     maze_gen.delete_nodes();
 }
@@ -318,22 +321,46 @@ void ending_scene()
     tft.println(" --- Time spent looking for exit: "+String(action_time/1000 - map_time/1000)+ " s.");
     tft.println(" --- Button pressed: "+String(button_pressed)+ " times.");
 
-    if (completed_game_with_high_score>1)
+
+    // the smaller the is score the better performance
+    // keep the score in 0 - 1400
+    // for 64x48:
+    // score = action_time/80
+    // score += map_time/15
+    // score += button_pressed*100
+
+    // center:
+    //time spent on map: 4 sec
+    // time spent looking for exit: 20 sec
+    // score = 20*1000/80 + 4*1000/15 = 516
+
+    // opposite:
+    // score = 276
+
+    // center:
+    //time spent on map: 6 sec
+    // time spent looking for exit: 25 sec
+    // score = 25*1000/80 + 6*1000/15 = 712
+
+    // score ~ 1/map_size, the bigger the map the smaller (the better) score is.
+    // score ~ exit_time 
+    // score ~ map_time
+    // and if score1 and score2 for the same exit_time and map_time but score1 with opposite spawn and score2 with center spawn, score1 (opposite)< score2 (center) 
+    // score = (p * map_time + q * exit_time)*k/map_size, sloving this eqation with parameters listed above we get: p = 94, q = 24, if center spawn k=1, else k=1,87
+
+    float k = 1.87;
+    uint8_t p=141,q=48;
+
+    if (!center_spawn || (default_spawn && completed_game_with_high_score>1))
     {
-        score = action_time/140;
-        score += map_time/30;
-    }
-    else{
-        if (button_pressed>0)
-        {
-            score+=200;
-        }
-        score = action_time/80;
-        score += map_time/15;
+        k = 1;
     }
 
+    score = (p * map_time + q * action_time + 400000*button_pressed)*k;
+    score /= number_of_cols;
+    score /= number_of_rows;
 
-    score += button_pressed*100;
+
     text_color.hue += score/5;
 
     if (score<450)

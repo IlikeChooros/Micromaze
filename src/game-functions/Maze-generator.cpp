@@ -125,10 +125,10 @@ void Maze_generator::delete_nodes()
 {
     for (uint8_t i=0;i<4;i++)
     {
-        Serial.println("GEN: "+String(i));
-        Serial.println("BEFORE SIZE: "+String(four_generators[i].size()));
+        //Serial.println("GEN: "+String(i));
+        //Serial.println("BEFORE SIZE: "+String(four_generators[i].size()));
         delete_unused_nodes(four_generators[i].size(),i);
-        Serial.println("AFTER SIZE: "+ String(four_generators[i].size()));
+        //Serial.println("AFTER SIZE: "+ String(four_generators[i].size()));
     }
 }
 
@@ -367,10 +367,10 @@ void Maze_generator::generate_part_maze(uint8_t generation, uint8_t min_dist, ui
         {
             if ( !((node->left && node->right) && (node->up && node->down))) // if the node couldnt 'move' in last iteration, ignore it, move to the next one
             {
-                Serial.print("GENERATOR: "+String(i)+"  size: "+String(four_generators[i].size()) +  " --- deleting node: " + String(counter));
+                //Serial.print("GENERATOR: "+String(i)+"  size: "+String(four_generators[i].size()) +  " --- deleting node: " + String(counter));
                 Point* point;
                 point = four_generators[i].poll_last();
-                Serial.println("  ("+String(point->x)+", "+String(point->y));
+                //Serial.println("  ("+String(point->x)+", "+String(point->y));
                 if(point)
                 {
                     four_generators[i].set_size(four_generators[i].size()-1);
@@ -393,25 +393,25 @@ void Maze_generator::delete_unused_nodes(uint16_t size, uint8_t generator)
 {
     uint16_t new_size =four_generators[generator].size();
 
-    Serial.println("Before: "+String(new_size));
-    Serial.println("DELETING: "+ String(size) + ", generator: "+ String(generator));
+    //Serial.println("Before: "+String(new_size));
+    //Serial.println("DELETING: "+ String(size) + ", generator: "+ String(generator));
     for (uint32_t j = 0; j<size;j++)
     {
         Point *temp_point = four_generators[generator].poll_last();
         if (!temp_point)
         {
-            Serial.println("Succesfully delted: " + String(j));
-            Serial.println("After: "+ String(new_size));
-            Serial.println("");
+            //Serial.println("Succesfully delted: " + String(j));
+            //Serial.println("After: "+ String(new_size));
+            //Serial.println("");
             four_generators[generator].set_size(new_size);
             return;
         }
         new_size--;
         delete temp_point;
     }
-    Serial.println("Succesfully delted: " + String(size));
-    Serial.println("After: "+ String(new_size));
-    Serial.println("");
+    //Serial.println("Succesfully delted: " + String(size));
+    //Serial.println("After: "+ String(new_size));
+    //Serial.println("");
     four_generators[generator].set_size(new_size);
 }
 
