@@ -226,7 +226,7 @@ void generate_maze()
     f +=9*(x-a)/(LN_10 * a);
     f -= 9*(x-a)*(x-a)/(2*a*a* LN_10);
     f += 3*(x-a)*(x-a)*(x-a)/(a*a*a * LN_10);
-    Serial.println(" f(" + String(x) + ") = "+String(f));
+    //Serial.println(" f(" + String(x) + ") = "+String(f));
 
     num_of_gen = round(f);
 
@@ -318,7 +318,7 @@ void ending_scene()
     tft.setTextSize(1);
     tft.println("       Your Score: ");
     tft.println(" --- Time spent looking at map: "+String(map_time/1000) + " s.");
-    tft.println(" --- Time spent looking for exit: "+String(action_time/1000 - map_time/1000)+ " s.");
+    tft.println(" --- Time spent looking for exit: "+String(action_time/1000)+ " s.");
     tft.println(" --- Button pressed: "+String(button_pressed)+ " times.");
 
 
