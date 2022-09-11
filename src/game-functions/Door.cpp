@@ -161,7 +161,7 @@ Wall_dir Door::generate_door(uint8_t approx)
 void Door::clear_map()
 {
     _map->get_current_map()[door_positions[0]]=0;
-    delete door_positions;
+    delete [] door_positions;
 }
 
 bool Door::check_collision_with_player(Point player_pos)
