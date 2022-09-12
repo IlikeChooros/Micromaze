@@ -220,7 +220,7 @@ void generate_maze()
     // P(x) = f(a) + f'(a)*(x-a) + 1/2! * f''(a)*(x-a)^2 + 1/3! * f'''(a)*(x-a)^3 + ... 
     // i get polynomial P(x) = 9 * log_10(100) - 9 + 9*(x-100) / (ln(100) * 100) - 9*(x-100)^2 / (2 * 100^2 * ln(100)) + 3 * (x-100)^3 / (100^3 * ln(100))
     // P(x) = 9 + 9*(x-100)/(ln100 * 100) - 9 * (x-100)^2 / ( 2 * 100^2 * ln100) + 3*(x-100)^3 / (100^3 * ln100) 
-    // i used ln10 instead of ln100, to decrease the slope
+    // i used ln10 instead of ln100, to increase the slope
 
     f = 10;
     f +=9*(x-a)/(LN_10 * a);
@@ -264,8 +264,8 @@ void load_player_vision()
     rows = closest_to_divider(number_of_rows/2, divisors, 12, &idx_320);
     col = closest_to_divider(number_of_cols/2, divisors_, 18, &idx_240);
     // Serial.println("");
-    Serial.println("COL: " + String(number_of_cols/2) + "  divisors_240["+String(idx_240)+"] = "+String(col));
-    Serial.println("ROW: " + String(number_of_rows/2) + "  divisors_320["+String(idx_320)+"] = "+String(rows));
+    //Serial.println("COL: " + String(number_of_cols/2) + "  divisors_240["+String(idx_240)+"] = "+String(col));
+    //Serial.println("ROW: " + String(number_of_rows/2) + "  divisors_320["+String(idx_320)+"] = "+String(rows));
     
    
     if (col < rows)
@@ -299,7 +299,7 @@ void load_player_vision()
         deg = 1;
     }
 
-    Serial.println("RAY_L: "+String(ray_lenght) + "    DEG: "+String(deg));
+    //Serial.println("RAY_L: "+String(ray_lenght) + "    DEG: "+String(deg));
 
     player_vision.load_ray_casting(ray_angle, 6.28, ray_lenght, color);
 }
@@ -632,8 +632,8 @@ void print_game_title()
     tft.setRotation(1);
     tft.setTextSize(3);
 
-    HSV fading_color = {180,82,90};
-    fading_effect("MICROMAZE", 9, fading_color, 5);
+    HSV fading_color = {185,82,90};
+    fading_effect("MICROMAZE", 9, fading_color, 5.3);
 
 }
 
