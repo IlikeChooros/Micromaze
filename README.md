@@ -8,4 +8,4 @@ By getting to the exit you will get information of your performance with valid o
 
 Has customizable settings, in which you can set to your liking: spawn point and maze size.
 
-This game was made for esp32, display tft lcd 240x320 ILI9341 and PS2 thumbsitck.
+This game was made for esp32 with: display tft lcd 240x320 ILI9341 and PS2 thumbsitck.
