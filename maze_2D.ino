@@ -237,19 +237,59 @@ void generate_maze()
     maze_gen.delete_nodes();
 }
 
+uint8_t closest_to_divider(uint8_t num, uint8_t divisors[], uint8_t number_of_divsors, uint8_t *idx)
+{
+    int16_t val,min=100, abs_val;
+    for (uint8_t i=0;i<number_of_divsors;i++)
+    {
+        val = divisors[i] - num;
+        abs_val = abs(val);
+        if (abs_val < min && val <= 0)
+        {
+            min = abs_val;
+            *idx = i;
+        }
+    }
+    return divisors[*idx];
+}
+
 void load_player_vision()
 {
-    uint8_t col = number_of_cols/2;
-    uint8_t rows = number_of_rows/2;
+    uint8_t divisors_[18] = {1,2,3,4,5,6,8,10,12,15,16,20,24,30}; // cols 240
+    uint8_t divisors[12] = {1,2,4,5,8,10,16,20,32,40}; // rows 320
 
-    if (number_of_cols >= 48 )
-    {
-        col = 24;
-        rows = 32;
-    }
-    player_vision.load_map(maze_gen.get_maze(),number_of_cols, number_of_rows, col , rows ,convert_to_RGB(2, 96, 173));
+    uint8_t idx_240, idx_320, col, rows, ray_lenght;
+    float ray_angle = 0.0177;
+    rows = closest_to_divider(number_of_rows/2, divisors, 12, &idx_320);
+    col = closest_to_divider(number_of_cols/2, divisors_, 18, &idx_240);
+    // Serial.println("");
+    // Serial.println("COL: " + String(number_of_cols/2) + "  divisors_240["+String(idx_240)+"] = "+String(divisors_[idx_240]));
+    // Serial.println("ROW: " + String(number_of_rows/2) + "  divisors_320["+String(idx_320)+"] = "+String(divisors[idx_320]));
     
-    player_vision.load_ray_casting(0.035, 6.28, 10, color);
+   
+    if (col < rows)
+    {
+        ray_lenght = col/2;
+    }
+    else{
+        ray_lenght = rows/2;
+    }
+
+    player_vision.load_map(maze_gen.get_maze(),number_of_cols, number_of_rows, col , rows ,convert_to_RGB(2, 96, 173));
+
+    if (ray_angle < 5)
+    {
+        ray_angle = 0.28; // ~ 8 deg.
+    }
+    else if (ray_lenght < 6)
+    {
+        ray_angle = 0.14; // ~ 4 deg.
+    }
+    else if (ray_lenght < 12)
+    {
+        ray_angle = 0.035; // ~ 1 deg.
+    }
+    player_vision.load_ray_casting(ray_angle, 6.28, ray_lenght, color);
 }
 
 void draw_player_on_map()
