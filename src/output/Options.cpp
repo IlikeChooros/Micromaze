@@ -5,14 +5,19 @@ Options::Options(TFT_eSPI *tft)
     this->_tft = tft;
 }
 
-void Options::_init_(uint8_t number_of_normal_opt, uint8_t num_of_sliders)
+void Options::_init_(uint8_t number_of_normal_opt, uint8_t num_of_sliders, uint8_t num_of_layers)
 {
     this->number_of_opt = number_of_normal_opt;
     normal_options = 0;
+
+    bool t = false;
+
     if (number_of_normal_opt>0)
     {
         normal_options = new Option[number_of_normal_opt];
+        t = true;
     }
+
     normal_opt_idx = 0;
     slider_idx = 0;
 
@@ -20,6 +25,18 @@ void Options::_init_(uint8_t number_of_normal_opt, uint8_t num_of_sliders)
     {
         sliders = new Slider[num_of_sliders];
     }
+
+    if (num_of_layers>0 && t)
+    {
+        list_of_idx = new uint8_t* [num_of_layers];
+        for (uint8_t i=0;i<num_of_layers;i++)
+        {
+            list_of_idx[i] = new uint8_t [2];
+        }
+    }
+
+    prev_layer = 0;
+    first_option = true;
 }
 
 void Options::create_slider(uint8_t layer, uint8_t option_idx, const char option_name[], uint8_t starting_num, uint8_t text_size, uint8_t itr)
@@ -44,6 +61,23 @@ void Options::create_slider(uint8_t layer, uint8_t option_idx, const char option
 
 void Options::create_option(uint8_t layer,uint8_t option_idx, const char option_name[], uint8_t size, bool marked)
 {
+    // list_of_idx [layer][0] ->starting idx of opt, list_of_idx[layer][1] -> ending idx of opt
+
+    if (prev_layer != layer)
+    {
+        prev_layer = layer;
+        first_option = true;
+    }
+
+    if (first_option)
+    {
+        list_of_idx[layer][0] = normal_opt_idx;
+        first_option = false;
+    }
+
+
+    list_of_idx[layer][1]=normal_opt_idx;
+
     normal_options[normal_opt_idx].layer = layer;
     normal_options[normal_opt_idx].option_name = option_name;
     normal_options[normal_opt_idx].option_idx = option_idx;
@@ -63,13 +97,7 @@ void Options::create_option(uint8_t layer,uint8_t option_idx, const char option_
 uint8_t Options::get_num_of_options_in_layer(int8_t layer)
 {
     uint8_t counter=0;
-    for (uint8_t i=0;i<normal_opt_idx;i++)
-    {
-        if (normal_options[i].layer == layer)
-        {
-            counter++;
-        }
-    }
+    counter = list_of_idx[layer][1] - list_of_idx[layer][0] + 1;
 
     for (uint8_t i=0;i<slider_idx;i++)
     {
@@ -84,14 +112,7 @@ uint8_t Options::get_num_of_options_in_layer(int8_t layer)
 void Options::draw(uint8_t layer, uint8_t current_option_idx)
 {
     uint8_t idx;
-    for (uint8_t i=0;i<normal_opt_idx;i++)
-    {
-        if(normal_options[i].layer == layer)
-        {
-            idx = i;
-            break;
-        }
-    }
+    idx = list_of_idx[layer][0];
 
     _tft->setRotation(1);
     _tft->setTextColor(TFT_WHITE);
@@ -100,7 +121,7 @@ void Options::draw(uint8_t layer, uint8_t current_option_idx)
     {
         _tft->setTextSize(normal_options[idx].size);
     }
-    bool t=false;
+    bool is_on_cursor=false;
     uint16_t y;
     uint8_t starting_val = 0;
 
@@ -113,25 +134,29 @@ void Options::draw(uint8_t layer, uint8_t current_option_idx)
         if (normal_options[idx].option_idx == current_option_idx)
         {
             _tft->setTextColor(TFT_GREEN);
-            t = true;
+            is_on_cursor = true;
         }
         
         y = starting_val + ((normal_options[idx].option_idx+1) * calculate_y(normal_options[idx].size));
         _tft->setCursor(calculate_starting_x(normal_options[idx].size, normal_options[idx].str_len), y);
-
-        
         _tft->print(normal_options[idx].option_name);
+
         if (normal_options[idx].marked)
         {
             _tft->print("  X");
         }
 
-        if (t)
+        if (is_on_cursor)
         {
             _tft->setTextColor(TFT_WHITE);
         }
         
         idx++;
+
+        if (idx == normal_opt_idx)
+        {
+            break;
+        }
     }
 
     if (slider_idx>0)
@@ -159,14 +184,14 @@ void Options::draw_slider(uint8_t layer, uint8_t curr_sli_idx)
     _tft->setRotation(1);
     _tft->setTextColor(TFT_WHITE);
 
-    bool t=false;
+    bool is_on_cursor=false;
 
     while(sliders[idx].layer == layer)
     {
         if (sliders[idx].option_idx == curr_sli_idx)
         {
             _tft->setTextColor(TFT_GREEN);
-            t = true;
+            is_on_cursor = true;
         }
 
         y = (sliders[idx].option_idx+1)*calculate_y(sliders[idx].size);
@@ -178,7 +203,7 @@ void Options::draw_slider(uint8_t layer, uint8_t curr_sli_idx)
 
         //Serial.println(" Y: "+String(y) + ",   0"+ " + ("+String(sliders[idx].option_idx + 1)+ ") * "+ String(calculate_y(sliders[idx].size)));
 
-        if (t)
+        if (is_on_cursor)
         {
             _tft->setTextColor(TFT_WHITE);
         }

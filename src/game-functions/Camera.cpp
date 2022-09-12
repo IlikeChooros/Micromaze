@@ -179,8 +179,8 @@ uint16_t Camera::player_y(uint16_t player_y)
 void Camera::show_current_angle_of_player(uint16_t x_pos, uint16_t y_pos)
 {
     Serial.println("Showing the angle x: "+String(x_pos)+" y: "+ String(y_pos));
-    double sinus = sin(_player_angle);
-    double cosinus = cos(_player_angle);
+    double sinus = sinf(_player_angle);
+    double cosinus = cosf(_player_angle);
 
     float x,y;
 
@@ -246,8 +246,8 @@ void Camera::ray_cast(double angle, Point player_pos, int16_t vector_x, int16_t 
 
     for (uint8_t i = 0; i<_ray_lenght;i++)
     {
-        ray_position.fl_x += sin(angle);
-        ray_position.fl_y += cos(angle);
+        ray_position.fl_x += sinf(angle);
+        ray_position.fl_y += cosf(angle);
 
         ray_position.x = round(ray_position.fl_x);
         ray_position.y = round(ray_position.fl_y);
@@ -260,7 +260,7 @@ void Camera::ray_cast(double angle, Point player_pos, int16_t vector_x, int16_t 
 
             y = ray_position.y- player_pos.y;
 
-            dist = sqrt(x*x+y*y);
+            dist = sqrtf(x*x+y*y);
 
             x+=x_margin;
             y+=y_margin;

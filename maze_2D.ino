@@ -248,6 +248,8 @@ void load_player_vision()
         rows = 32;
     }
     player_vision.load_map(maze_gen.get_maze(),number_of_cols, number_of_rows, col , rows ,convert_to_RGB(2, 96, 173));
+    
+    player_vision.load_ray_casting(0.035, 6.28, 10, color);
 }
 
 void draw_player_on_map()
@@ -536,8 +538,6 @@ void start()
 
     load_player_vision();
 
-    player_vision.load_ray_casting(0.035, 6.28, 10, color);
-
     player._init_();
 
     world_map.draw_map();
@@ -793,7 +793,7 @@ void setup()
 
     maze_gen._init_();
 
-    options._init_(15,2);
+    options._init_(15,2,5);
 
 
     options.create_option(0,0,"START",3,false);
