@@ -259,12 +259,13 @@ void load_player_vision()
     uint8_t divisors[12] = {1,2,4,5,8,10,16,20,32,40}; // rows 320
 
     uint8_t idx_240, idx_320, col, rows, ray_lenght;
-    float ray_angle = 0.0177;
+    float ray_angle = 0.0177; // ~ 0.5 deg.
+    float deg = 0.5;
     rows = closest_to_divider(number_of_rows/2, divisors, 12, &idx_320);
     col = closest_to_divider(number_of_cols/2, divisors_, 18, &idx_240);
     // Serial.println("");
-    // Serial.println("COL: " + String(number_of_cols/2) + "  divisors_240["+String(idx_240)+"] = "+String(divisors_[idx_240]));
-    // Serial.println("ROW: " + String(number_of_rows/2) + "  divisors_320["+String(idx_320)+"] = "+String(divisors[idx_320]));
+    Serial.println("COL: " + String(number_of_cols/2) + "  divisors_240["+String(idx_240)+"] = "+String(col));
+    Serial.println("ROW: " + String(number_of_rows/2) + "  divisors_320["+String(idx_320)+"] = "+String(rows));
     
    
     if (col < rows)
@@ -277,18 +278,29 @@ void load_player_vision()
 
     player_vision.load_map(maze_gen.get_maze(),number_of_cols, number_of_rows, col , rows ,convert_to_RGB(2, 96, 173));
 
-    if (ray_angle < 5)
+    if (ray_lenght < 4)
     {
         ray_angle = 0.28; // ~ 8 deg.
+        deg = 8;
     }
-    else if (ray_lenght < 6)
+    else if (ray_lenght < 5)
     {
         ray_angle = 0.14; // ~ 4 deg.
+        deg = 4;
     }
-    else if (ray_lenght < 12)
+    else if (ray_lenght < 7)
+    {
+        ray_angle = 0.07; // ~ 2 deg.
+        deg = 2;
+    }
+    else if (ray_lenght < 13)
     {
         ray_angle = 0.035; // ~ 1 deg.
+        deg = 1;
     }
+
+    Serial.println("RAY_L: "+String(ray_lenght) + "    DEG: "+String(deg));
+
     player_vision.load_ray_casting(ray_angle, 6.28, ray_lenght, color);
 }
 
