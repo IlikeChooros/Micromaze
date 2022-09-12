@@ -61,7 +61,6 @@ HSV text_color = {100, 100, 100};
 Player_tft player(&tft,&world_map);
 
 Dir current_dir=RIGHT;
-
 Dir option_dir;
 
 Options options(&tft);
@@ -226,6 +225,7 @@ void generate_maze()
     f +=9*(x-a)/(LN_10 * a);
     f -= 9*(x-a)*(x-a)/(2*a*a* LN_10);
     f += 3*(x-a)*(x-a)*(x-a)/(a*a*a * LN_10);
+
     //Serial.println(" f(" + String(x) + ") = "+String(f));
 
     num_of_gen = round(f);
@@ -345,7 +345,6 @@ void reset()
     finished = false;
     timer_started = false;
 }
-
 
 void gradient_letters(const char str [], uint8_t starting_hue, float itr_val)
 {
@@ -532,7 +531,6 @@ void right()
     move(RIGHT);
 }
 
-
 void move(uint8_t dir)
 {
     if(!timer_started)
@@ -573,6 +571,7 @@ void start()
     joystick.on_dir_left(left);
     joystick.on_dir_right(right);
     joystick.on_dir_up(up);
+    joystick.set_interval(100);
 
     generate_maze();
 
@@ -600,6 +599,7 @@ void start()
     player.set_player_posistion(starting_point);
 
     draw_player_on_map();
+
     player_vision.load_player(convert_to_RGB(176, 168, 111),convert_to_RGB(99, 5, 14), 0, player.get_current_player_position());
 }
 
@@ -792,6 +792,7 @@ void pick_option()
             case 2:
                 joystick.on_dir_left(do_nothing);
                 joystick.on_dir_right(do_nothing);
+                joystick.set_interval(200);
                 for (uint8_t i=0;i<4;i++)
                 {
                     options.set_mark(false, i, 3);
@@ -815,6 +816,7 @@ void pick_option()
     {
         joystick.on_dir_left(decrement_slider);
         joystick.on_dir_right(increment_slider);
+        joystick.set_interval(100);
     }
     options.draw(current_layer,current_option);
 }
@@ -839,6 +841,7 @@ void setup()
     joystick._init_();
     joystick.on_dir_up(move_up_opt);
     joystick.on_dir_down(move_down_opt);
+    joystick.set_interval(200);
 
     Serial.begin(921600);
     tft.init();
@@ -846,7 +849,6 @@ void setup()
     maze_gen._init_();
 
     options._init_(15,2,5);
-
 
     options.create_option(0,0,"START",3,false);
     options.create_option(0,1, "SETTINGS",3,false);

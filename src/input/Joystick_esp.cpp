@@ -79,6 +79,11 @@ void Joystick::read()
 
 }
 
+void Joystick::set_interval(uint16_t interval)
+{
+    interval_time = interval;
+}
+
 void Joystick::on_dir_left(void (*on_change)())
 {
     this->_on_left = on_change;

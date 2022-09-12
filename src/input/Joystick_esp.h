@@ -25,6 +25,7 @@ class Joystick
     void on_dir_right(void(*)(void));
     void on_dir_up(void(*)(void));
     void on_dir_down(void(*)(void));
+    void set_interval(uint16_t interval);
 };
 
 
