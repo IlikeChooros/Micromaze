@@ -1,4 +1,4 @@
-# maze_2D
+# Micromaze
 
 ![micromaze](https://user-images.githubusercontent.com/105538405/189667758-9ec85738-0a25-4835-8db1-6b99c14963fe.png)
 
