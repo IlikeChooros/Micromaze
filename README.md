@@ -15,7 +15,10 @@ This game was made for esp32 with: display tft lcd 240x320 ILI9341 and PS2 thumb
 Below, I will describe options in Micromaze and explain how they are affecting the game.
 
 
+
+
 ----SPAWN POINT----
+
 
   DEFAULT -> It works as follows: At the beginning, you will be placed at the center of the map, if you succeed to get score below 450 (you will gain 1 
   great_performance_point') two times, you will be placed in the opposite side of the exit, but if dont you keep 'great_preformance_point' above 1,by getting score
@@ -27,9 +30,15 @@ Below, I will describe options in Micromaze and explain how they are affecting t
 
 ----MAZE SIZE----
 
+
+
   You can set to your liking maze dimensions. It affects the speed of maze generation, the bigger the map, the longer it will take to finish generation of a maze.
+  
+  
 
 ----PARAMETERS----
+
+
   GENERATOR DEPTH -> This greatly affects the maze generation, this number indicates how many times will the maze generation procedure be repeated.
   The bigger the number the more sophisticated the maze and more time will be spent on generating procedure. The most optimal number is the default one, assigned using modified taylor series of a logarythmic function: 
   
