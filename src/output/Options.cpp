@@ -119,10 +119,6 @@ void Options::draw(uint8_t layer, uint8_t current_option_idx)
     _tft->setRotation(1);
     _tft->setTextColor(TFT_WHITE);
 
-    if (normal_options[idx].size > 2)
-    {
-        _tft->setTextSize(normal_options[idx].size);
-    }
     bool is_on_cursor=false;
     uint16_t y;
     uint8_t starting_val = 0;
@@ -133,6 +129,7 @@ void Options::draw(uint8_t layer, uint8_t current_option_idx)
     }
     while(normal_options[idx].layer == layer)
     {
+        _tft->setTextSize(normal_options[idx].size);
         if (normal_options[idx].option_idx == current_option_idx)
         {
             _tft->setTextColor(TFT_GREEN);
@@ -182,7 +179,6 @@ void Options::draw_slider(uint8_t layer, uint8_t curr_sli_idx)
         }
     }
 
-    _tft->setTextSize(sliders[idx].size);
     _tft->setRotation(1);
     _tft->setTextColor(TFT_WHITE);
 
@@ -190,6 +186,7 @@ void Options::draw_slider(uint8_t layer, uint8_t curr_sli_idx)
 
     while(sliders[idx].layer == layer)
     {
+        _tft->setTextSize(sliders[idx].size);
         if (sliders[idx].option_idx == curr_sli_idx)
         {
             _tft->setTextColor(TFT_GREEN);
@@ -197,7 +194,7 @@ void Options::draw_slider(uint8_t layer, uint8_t curr_sli_idx)
         }
 
         y = (sliders[idx].option_idx+1)*calculate_y(sliders[idx].size);
-        _tft->setCursor(calculate_starting_x(sliders[idx].size, sliders[idx].str_len + 5)- 20, y);
+        _tft->setCursor(calculate_starting_x(sliders[idx].size, sliders[idx].str_len + 2*sliders[idx].size)- 6*sliders[idx].size, y);
         _tft->print(sliders[idx].option_name);
         _tft->print(" <");
         _tft->print(String(sliders[idx].current_val));

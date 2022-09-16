@@ -67,12 +67,15 @@ Options options(&tft);
 
 int8_t current_layer = 0;
 int8_t current_option = 0;
+int8_t num_of_gen = -1;
+uint16_t val_to_use;
 
 int8_t prev_pick_opt_2 = 0;
 int8_t prev_pick_opt_3 = 1;
 
 bool default_spawn = true;
 bool center_spawn = false;
+bool default_num_gen = true;
 
 void do_nothing()
 {
@@ -204,14 +207,9 @@ void set_center_spawn_point()
     }
 }
 
-void generate_maze()
+uint8_t calculate_gen_depth(uint16_t x)
 {
-    uint8_t num_of_gen;
-    uint16_t x;
-
     float f;
-
-    x = number_of_cols > number_of_rows? number_of_cols : number_of_rows;
 
     // f(x) = 9 * log_10 (x) - 9
     // Using taylor series 
@@ -227,14 +225,22 @@ void generate_maze()
     f += 3*(x-a)*(x-a)*(x-a)/(a*a*a * LN_10);
 
     //Serial.print(" f(" + String(x) + ") = "+String(f));
+    return round(f);
+}
 
-    num_of_gen = round(f);
+void generate_maze()
+{
 
+    val_to_use = number_of_cols > number_of_rows? number_of_cols : number_of_rows;
+
+
+    num_of_gen = default_num_gen ? calculate_gen_depth(val_to_use) : num_of_gen;
+    
     //Serial.println(",  num_of_gen:"+String(num_of_gen));
 
-    x = number_of_cols < number_of_rows ? number_of_cols : number_of_rows;
-    x = random(x/8,x/4) + 2;
-    maze_gen.create_generators(x,number_of_cols,number_of_rows);
+    val_to_use = number_of_cols < number_of_rows ? number_of_cols : number_of_rows;
+    val_to_use = random(val_to_use/8,val_to_use/4) + 2;
+    maze_gen.create_generators(val_to_use,number_of_cols,number_of_rows);
     maze_gen.generate_maze(num_of_gen,5,13);
     maze_gen.delete_nodes();
 }
@@ -638,6 +644,11 @@ void print_game_title()
 
 void increment_slider()
 {
+    if (current_layer == 5 && current_option == 0 && default_num_gen)
+    {
+        default_num_gen = false;
+        options.set_mark(false, 0, 5);
+    }
     tft.fillScreen(TFT_BLACK);
     options.increment_slider(current_layer, current_option);
     options.draw(current_layer, current_option);
@@ -645,6 +656,11 @@ void increment_slider()
 
 void decrement_slider()
 {
+    if (current_layer == 5 && current_option == 0 && default_num_gen)
+    {
+        default_num_gen = false;
+        options.set_mark(false, 0, 5);
+    }
     tft.fillScreen(TFT_BLACK);
     options.decrement_slider(current_layer, current_option);
     options.draw(current_layer, current_option);
@@ -699,6 +715,21 @@ void pick_option()
                 current_option=0;
                 break;
             case 2:
+                current_option = 0;
+                current_layer = 5;
+
+                joystick.on_dir_left(decrement_slider);
+                joystick.on_dir_right(increment_slider);
+                joystick.set_interval(100);
+
+                val_to_use = number_of_cols < number_of_rows ? number_of_cols : number_of_rows;
+
+                if (default_num_gen)
+                {
+                    options.set_value(5,0, calculate_gen_depth(val_to_use));
+                }
+                break;
+            case 3:
                 current_layer--;
                 current_option=0;
         }
@@ -788,7 +819,8 @@ void pick_option()
         }
     }
 
-    else{
+    else if(current_layer==4)
+    {
         switch(current_option)
         {
             case 0: // rows
@@ -804,7 +836,6 @@ void pick_option()
                     options.set_mark(false, i, 3);
                 }
                 
-
                 number_of_rows = options.get_value(4,0);
                 number_of_cols = options.get_value(4,1);
 
@@ -812,6 +843,32 @@ void pick_option()
                 current_option=0;
         }
     }
+
+    else{
+        switch(current_option)
+        {
+            case 0: // gen_depth 
+                break;
+            case 1:
+                if (!default_num_gen)
+                {
+                    default_num_gen = true;
+                    options.set_value(5,0,calculate_gen_depth(val_to_use));
+                    options.set_mark(true, 0,5);
+                }
+                break;
+            case 2:
+                current_layer = 1;
+                current_option=0;
+
+                joystick.on_dir_left(do_nothing);
+                joystick.on_dir_right(do_nothing);
+                joystick.set_interval(200);
+
+                num_of_gen = options.get_value(5,0);
+        }
+    }
+
 
     if (current_layer == 0)
     {
@@ -848,14 +905,15 @@ void setup()
 
     maze_gen._init_();
 
-    options._init_(15,2,5);
+    options._init_(18,3,6);
 
     options.create_option(0,0,"START",3,false);
     options.create_option(0,1, "SETTINGS",3,false);
 
     options.create_option(1,0, "SPAWN POINT", 3, false);
     options.create_option(1,1, "MAZE SIZE",3,false);
-    options.create_option(1,2,"BACK",3,false);
+    options.create_option(1,2,"PARAMETERS", 3, false);
+    options.create_option(1,3,"BACK",3,false);
 
     options.create_option(2,0, "DEFAULT",3,true); // spawn point
     options.create_option(2,1, "CENTER",3,false);
@@ -871,6 +929,10 @@ void setup()
     options.create_slider(4,0, "(|||) ROWS", 64, 8, 320, 3, 2); //custom
     options.create_slider(4,1, "(---) COLS", 48, 8, 240, 3, 2);
     options.create_option(4,2,"BACK",3,false);
+
+    options.create_slider(5,0, "GENERATOR DEPTH", 0, 0, 25, 2,1); // parameters
+    options.create_option(5,1, "DEFAUTL DEPTH", 2,true);
+    options.create_option(5,2, "BACK", 2,false);
 
     tft.fillScreen(TFT_BLACK);
     print_game_title();
