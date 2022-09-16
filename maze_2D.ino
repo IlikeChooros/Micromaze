@@ -241,32 +241,34 @@ void generate_maze()
 
 uint8_t closest_to_divider(uint8_t num, uint8_t divisors[], uint8_t number_of_divsors, uint8_t *idx)
 {
-    int16_t val,min=100, abs_val;
+    int16_t val,min=250, abs_val;
     for (uint8_t i=0;i<number_of_divsors;i++)
     {
         val = divisors[i] - num;
         abs_val = abs(val);
+        //Serial.print("I: "+String(i) + " div["+String(i)+"] = "+String(divisors[i]) + " VAL: "+String(val) + " ABS: "+String(abs_val));
         if (abs_val < min && val <= 0)
         {
             min = abs_val;
             *idx = i;
         }
+        //Serial.println(" ---MIN:"+String(min) + " IDX MIN: "+String(*idx));
     }
     return divisors[*idx];
 }
 
 void load_player_vision()
 {
-    uint8_t divisors_[18] = {1,2,3,4,5,6,8,10,12,15,16,20,24,30}; // cols 240
-    uint8_t divisors[12] = {1,2,4,5,8,10,16,20,32,40}; // rows 320
+    uint8_t cols_div[14] = {1,2,3,4,5,6,8,10,12,15,16,20,24,30}; // cols 240
+    uint8_t rows_div[10] = {1,2,4,5,8,10,16,20,32,40}; // rows 320
 
     uint8_t idx_240, idx_320, col, rows, ray_lenght;
     float ray_angle = 0.0175; // ~ 1 deg.
-    rows = closest_to_divider(number_of_rows/2, divisors, 12, &idx_320);
-    col = closest_to_divider(number_of_cols/2, divisors_, 18, &idx_240);
-    //Serial.println("");
-    //Serial.println("COL: " + String(number_of_cols/2) + "  divisors_240["+String(idx_240)+"] = "+String(col));
-    //Serial.println("ROW: " + String(number_of_rows/2) + "  divisors_320["+String(idx_320)+"] = "+String(rows));
+    rows = closest_to_divider(number_of_rows/2, rows_div, 10, &idx_320);
+    col = closest_to_divider(number_of_cols/2, cols_div, 14, &idx_240);
+    // Serial.println("");
+    // Serial.println("COL: " + String(number_of_cols/2) + "  divisors_240["+String(idx_240)+"] = "+String(col));
+    // Serial.println("ROW: " + String(number_of_rows/2) + "  divisors_320["+String(idx_320)+"] = "+String(rows));
     
    
     if (col < rows)
@@ -296,7 +298,7 @@ void load_player_vision()
         ray_angle = 0.035; // ~ 2 deg.
     }
 
-    //Serial.println("RAY_L: "+String(ray_lenght) + "    DEG: "+String(deg));
+    //Serial.println("RAY_L: "+String(ray_lenght));
 
     player_vision.load_ray_casting(ray_angle, 6.28, ray_lenght, color);
 }
@@ -866,7 +868,7 @@ void setup()
     options.create_option(3,3, "CUSTOM",3, false);
     options.create_option(3,4,"BACK", 3,false);
 
-    options.create_slider(4,0, "(|||) ROWS", 64, 8, 280, 3, 2); //custom
+    options.create_slider(4,0, "(|||) ROWS", 64, 8, 320, 3, 2); //custom
     options.create_slider(4,1, "(---) COLS", 48, 8, 240, 3, 2);
     options.create_option(4,2,"BACK",3,false);
 
