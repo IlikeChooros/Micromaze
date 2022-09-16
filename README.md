@@ -27,11 +27,11 @@ SPAWN POINT
 
 MAZE SIZE
 
-  You can set to your liking maze dimensions.
+  You can set to your liking maze dimensions. It affects the speed of maze generation, the bigger the map, the longer it will take to finish generation of a maze.
 
 PARAMETERS
   GENERATOR DEPTH -> This greatly affects the maze generation, this number indicates how many times will the maze generation procedure be repeated.
-  The bigger the number the more sophisticated the maze. The most optimal number is the default one, assigned using modified taylor series of a logarythmic function: 
+  The bigger the number the more sophisticated the maze and more time will be spent on generating procedure. The most optimal number is the default one, assigned using modified taylor series of a logarythmic function: 
   
   
   ![image](https://user-images.githubusercontent.com/105538405/190658950-d399c8dc-df59-4530-bccc-2e2e7b96efbb.png)
