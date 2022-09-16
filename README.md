@@ -37,6 +37,10 @@ PARAMETERS
   ![image](https://user-images.githubusercontent.com/105538405/190658950-d399c8dc-df59-4530-bccc-2e2e7b96efbb.png)
   
   
+  Where x is the bigger number between: number of columns and number of rows.
+  
+  
+  
   ![image](https://user-images.githubusercontent.com/105538405/190659111-94b4fb3e-7254-401b-92ee-514f6b58bcfd.png)
 
 
