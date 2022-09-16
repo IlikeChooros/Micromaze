@@ -9,3 +9,56 @@ By getting to the exit you will get information of your performance with valid o
 Has customizable settings, in which you can set to your liking: spawn point and maze size.
 
 This game was made for esp32 with: display tft lcd 240x320 ILI9341 and PS2 thumbstick.
+
+
+
+Below, I will describe options in Micromaze and explain how they are affecting the game.
+
+
+SPAWN POINT
+
+  DEFAULT -> It works as follows: At the beginning, you will be placed at the center of the map, if you succeed to get score below 450 (you wiil gain 
+  great_performance_point') two times, you will be placed in the opposite side of the exit, but you must keep 'great_preformance_point' above 1, or you will be placed 
+  again in the center.
+
+  CENTER -> You will be placed always in the center of the map.
+
+  OPPOSITE -> You will be placed always in the opposite side of the exit (diagonally actually).
+
+MAZE SIZE
+
+  You can set to your liking maze dimensions.
+
+PARAMETERS
+  GENERATOR DEPTH -> This greatly affects the maze generation, this number indicates how many times will the maze generation procedure be repeated.
+  The bigger the number the more sophisticated the maze. The most optimal number is the default one, assigned using modified taylor series of a logarythmic function: 
+  
+  ![image](https://user-images.githubusercontent.com/105538405/190658950-d399c8dc-df59-4530-bccc-2e2e7b96efbb.png)
+  
+  ![image](https://user-images.githubusercontent.com/105538405/190659111-94b4fb3e-7254-401b-92ee-514f6b58bcfd.png)
+
+
+  However, using taylor series, where a = 100, I would get the following polynomial: 
+  P(x) = 9 + 9*(x-100)/(ln100 * 100) - 9 * (x-100)^2 / ( 2 * 100^2 * ln100) + 3*(x-100)^3 / (100^3 * ln100) 
+  On graph:
+  
+  ![image](https://user-images.githubusercontent.com/105538405/190664773-e8e02698-20de-472d-8840-d8c0dcfd3c01.png)
+  
+  
+  Although I could use this function, I wasnt satisfied with it, values for bigger x ~ 250 were too small, so I'm using this:
+  ![image](https://user-images.githubusercontent.com/105538405/190665627-63aee9c8-dac5-4451-81ef-0a903d6f1326.png)
+
+
+  On graph:
+  ![image](https://user-images.githubusercontent.com/105538405/190666137-8eae0c2e-4ffe-4b70-9834-b5e2a07bb681.png)
+
+
+  And all of them:
+  
+  ![image](https://user-images.githubusercontent.com/105538405/190666261-1e0fdb5d-e24d-4744-83c3-ba0a7ded40b6.png)
+
+
+
+
+
+
