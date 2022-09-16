@@ -17,7 +17,7 @@ Below, I will describe options in Micromaze and explain how they are affecting t
 
 SPAWN POINT
 
-  DEFAULT -> It works as follows: At the beginning, you will be placed at the center of the map, if you succeed to get score below 450 (you will gain 1 
+  /t DEFAULT -> It works as follows: At the beginning, you will be placed at the center of the map, if you succeed to get score below 450 (you will gain 1 
   great_performance_point') two times, you will be placed in the opposite side of the exit, but if dont you keep 'great_preformance_point' above 1,by getting score
   above 450, you will lose 1 great_performance_point, you will be placed again in the center.
 
