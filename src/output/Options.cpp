@@ -39,13 +39,15 @@ void Options::_init_(uint8_t number_of_normal_opt, uint8_t num_of_sliders, uint8
     first_option = true;
 }
 
-void Options::create_slider(uint8_t layer, uint8_t option_idx, const char option_name[], uint8_t starting_num, uint8_t text_size, uint8_t itr)
+void Options::create_slider(uint8_t layer, uint8_t option_idx, const char option_name[], int16_t starting_num,int16_t min_num , int16_t max_num  , uint8_t text_size, uint8_t itr)
 {
     sliders[slider_idx].layer = layer;
     sliders[slider_idx].option_idx = option_idx;
     sliders[slider_idx].size = text_size;
     sliders[slider_idx].option_name = option_name;
     sliders[slider_idx].current_val = starting_num;
+    sliders[slider_idx].max_val = max_num;
+    sliders[slider_idx].min_val = min_num;
     sliders[slider_idx].itr = itr;
 
     uint8_t i=0;
@@ -225,7 +227,7 @@ void Options::increment_slider(uint8_t layer, uint8_t opt_idx)
     {
         if ((sliders[i].layer == layer) && (sliders[i].option_idx == opt_idx))
         {
-            sliders[i].current_val += sliders[i].itr;
+            sliders[i].current_val = sliders[i].current_val < sliders[i].max_val ? sliders[i].current_val + sliders[i].itr : sliders[i].min_val;
             return;
         }
     }
@@ -237,13 +239,13 @@ void Options::decrement_slider(uint8_t layer, uint8_t opt_idx)
     {
         if ( (sliders[i].layer == layer) && (sliders[i].option_idx == opt_idx))
         {
-            sliders[i].current_val -= sliders[i].itr;
+            sliders[i].current_val = sliders[i].current_val > sliders[i].min_val ? sliders[i].current_val - sliders[i].itr : sliders[i].max_val;
             return;
         }
     }
 }
 
-uint8_t Options::get_value(uint8_t layer, uint8_t opt_idx)
+int16_t Options::get_value(uint8_t layer, uint8_t opt_idx)
 {
     for (uint8_t i=0;i<slider_idx;i++)
     {
@@ -255,16 +257,22 @@ uint8_t Options::get_value(uint8_t layer, uint8_t opt_idx)
     return 0;
 }
 
+void Options::set_value(uint8_t layer, uint8_t idx, int16_t val)
+{
+    for (uint8_t i=0;i<slider_idx;i++)
+    {
+        if ((sliders[i].layer == layer) && (sliders[i].option_idx == idx))
+        {
+            sliders[i].current_val = val < sliders[i].max_val && val > sliders[i].min_val ? val : sliders[i].current_val;
+            return;
+        }
+    }
+}
 
 void Options::set_mark(bool mark, uint8_t opt_idx, uint8_t layer)
 {
-    for (uint8_t i=0;i<normal_opt_idx;i++)
-    {
-        if (normal_options[i].layer == layer && normal_options[i].option_idx == opt_idx)
-        {
-            normal_options[i].marked = mark;
-        }
-    }
+    normal_options[list_of_idx[layer][0] + opt_idx].marked = mark;
+    // normal_options[ starting_idx_in_this_layer  +  option_idx_that_i_want_to_change_mark_on ]
 }
 
 uint16_t Options::calculate_starting_x(uint8_t text_size, uint8_t str_size)

@@ -20,9 +20,9 @@ void Door::load_map(uint8_t num_of_doors)
     uint8_t counter = 0;
     uint16_t pos_point;
 
-    for (uint8_t y = 0; y<num_of_rows;y++)
+    for (uint16_t y = 0; y<num_of_rows;y++)
     {
-        for (uint8_t x=0; x<num_of_cols; x++)
+        for (uint16_t x=0; x<num_of_cols; x++)
         {
             pos_point = y*num_of_cols+x;
             if (matrix_m[pos_point]==2)
@@ -75,9 +75,9 @@ Wall_dir Door::generate_door(uint8_t approx)
 
     uint8_t num_of_doors_nearby[4]={0,0,0,0}; 
 
-    for(uint8_t y=1;y<num_of_rows-1;y++)
+    for(uint16_t y=1;y<num_of_rows-1;y++)
     {
-        for(uint8_t x=1;x<num_of_cols-1;x++)
+        for(uint16_t x=1;x<num_of_cols-1;x++)
         {
             if (matrix[y*num_of_cols+x]==3)
             {
@@ -177,10 +177,10 @@ bool Door::check_collision_with_player(Point player_pos)
 }
 
 
-uint8_t Door::doors_nearby(uint8_t x, uint8_t y, uint8_t *matrix)
+uint8_t Door::doors_nearby(uint16_t x, uint16_t y, uint8_t *matrix)
 {
     uint8_t num_of_doors_nearby=0;
-    uint16_t pos = y*num_of_cols+x;
+    uint32_t pos = y*num_of_cols+x;
     if (matrix[pos])
     {
         return 0;

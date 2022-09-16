@@ -13,8 +13,8 @@ class Camera
 
     Point prev_player_pos;
 
-    uint8_t _number_of_cols;
-    uint8_t _number_of_rows;
+    uint16_t _number_of_cols;
+    uint16_t _number_of_rows;
 
     uint8_t _width_of_vision;
     uint8_t _height_of_vision;
@@ -62,7 +62,7 @@ class Camera
 
     public:
     Camera(TFT_eSPI *tft);
-    void load_map(uint8_t *matrix, uint8_t number_of_cols, uint8_t number_of_rows, uint8_t width_of_vision, uint8_t height_of_vision, uint32_t wall_color);
+    void load_map(uint8_t *matrix, uint16_t number_of_cols, uint16_t number_of_rows, uint8_t width_of_vision, uint8_t height_of_vision, uint32_t wall_color);
     void load_player(uint32_t player_color, uint32_t player_angle_color, float player_angle, Point player_pos);
     void load_ray_casting(float angle_itr, float angle_of_view,uint8_t ray_lenght ,HSV *colors);
     void draw_vision(Point player_pos);

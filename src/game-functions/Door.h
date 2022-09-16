@@ -23,11 +23,10 @@ class Door
     uint16_t *door_positions;
     uint8_t _number_of_doors;
 
-    uint8_t num_of_rows;
-    uint8_t num_of_cols;
+    uint16_t num_of_rows;
+    uint16_t num_of_cols;
 
-    uint8_t doors_nearby(uint8_t x, uint8_t y, uint8_t *matrix);
-    Wall_dir check_door_dir(uint8_t x, uint8_t y);
+    uint8_t doors_nearby(uint16_t x, uint16_t y, uint8_t *matrix);
 
     public:
     Door(TFT_eSPI *tft, Matrix_map *_matrix_map);

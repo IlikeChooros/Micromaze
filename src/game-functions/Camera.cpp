@@ -5,7 +5,7 @@ Camera::Camera(TFT_eSPI *tft)
     _tft = tft;
 }
 
-void Camera::load_map(uint8_t *matrix, uint8_t number_of_cols, uint8_t number_of_rows, uint8_t width_of_vision, uint8_t height_of_vision, uint32_t wall_color)
+void Camera::load_map(uint8_t *matrix, uint16_t number_of_cols, uint16_t number_of_rows, uint8_t width_of_vision, uint8_t height_of_vision, uint32_t wall_color)
 {
     _map = matrix;
     _number_of_cols = number_of_cols;
@@ -206,12 +206,12 @@ void Camera::show_current_angle_of_player(uint16_t x_pos, uint16_t y_pos)
 
 void Camera::draw_current_vision(uint8_t x, uint8_t y)
 {
-    uint8_t y_ptr=0;
-    uint8_t x_ptr=0;
+    uint16_t y_ptr=0;
+    uint16_t x_ptr=0;
     
-    for (uint8_t y_pos = y - y_margin; y_pos<y+y_margin; y_pos++)
+    for (uint16_t y_pos = y - y_margin; y_pos<y+y_margin; y_pos++)
     {
-        for (uint8_t x_pos = x -x_margin; x_pos<x+x_margin;x_pos++)
+        for (uint16_t x_pos = x -x_margin; x_pos<x+x_margin;x_pos++)
         {
             //Serial.println("Y_POS : "+ String(y_pos)+"  X_POS: "+ String(x_pos));
             if (_map[y_pos*_number_of_cols + x_pos] == 2)

@@ -21,7 +21,9 @@ class Slider
     public:
     uint8_t layer;
     uint8_t option_idx;
-    uint8_t current_val;
+    int16_t current_val;
+    int16_t max_val;
+    int16_t min_val;
     const char* option_name;
     uint8_t str_len;
     uint8_t size;
@@ -54,11 +56,12 @@ class Options
     void draw(uint8_t layer, uint8_t current_option_idx);
     void draw_slider(uint8_t layer, uint8_t current_idx);
     void create_option(uint8_t layer,uint8_t option_idx, const char option_name[], uint8_t text_size, bool mark);
-    void create_slider(uint8_t layer, uint8_t option_idx, const char option_name[], uint8_t starting_num, uint8_t text_size, uint8_t itr);
+    void create_slider(uint8_t layer, uint8_t option_idx, const char option_name[], int16_t starting_num,int16_t min_num , int16_t max_num  , uint8_t text_size, uint8_t itr);
     void set_mark(bool mark, uint8_t opt_idx, uint8_t layer);
     void increment_slider(uint8_t layer, uint8_t option_idx);
     void decrement_slider(uint8_t layer, uint8_t option_idx);
-    uint8_t get_value(uint8_t layer, uint8_t slider_idx);
+    int16_t get_value(uint8_t layer, uint8_t slider_idx);
+    void set_value(uint8_t layer, uint8_t slider_idx, int16_t val);
     uint8_t get_num_of_options_in_layer(int8_t layer);
 };
 

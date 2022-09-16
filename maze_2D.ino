@@ -20,10 +20,10 @@
 #define NUMBER_OF_ROWS_MAP 32
 #define NUMBER_OF_COL_MAP 24
 #define LN_10 2.30258509
-#define a 100
+#define a 95
 
-uint8_t number_of_cols = NUMBER_OF_COL_MAP*2;
-uint8_t number_of_rows = NUMBER_OF_ROWS_MAP*2;
+uint16_t number_of_cols = NUMBER_OF_COL_MAP*2;
+uint16_t number_of_rows = NUMBER_OF_ROWS_MAP*2;
 
 TFT_eSPI tft = TFT_eSPI();
 
@@ -142,12 +142,12 @@ void show_vision()
     player_vision.draw_vision(player.get_current_player_position());
 }
 
-bool set_starting_position(uint8_t y, uint8_t x_margin)
+bool set_starting_position(uint16_t y, uint8_t x_margin)
 {
-    uint8_t width_of_segment = tft.width()/(number_of_cols);
-    uint8_t height_of_segment = tft.height()/(number_of_rows);
+    uint16_t width_of_segment = tft.width()/(number_of_cols);
+    uint16_t height_of_segment = tft.height()/(number_of_rows);
 
-    for (uint8_t x = x_margin - 2;x<x_margin +3;x++)
+    for (uint16_t x = x_margin - 2;x<x_margin +3;x++)
     {
         if (maze_gen.get_maze()[y*number_of_cols+x]==0)
         {
@@ -162,8 +162,8 @@ bool set_starting_position(uint8_t y, uint8_t x_margin)
 
 void set_opposite_spawn_point()
 {
-    uint8_t x_margin = number_of_cols/2;
-    uint8_t y_margin = number_of_rows/2;
+    uint16_t x_margin = number_of_cols/2;
+    uint16_t y_margin = number_of_rows/2;
 
     switch (door_dir)
         {
@@ -184,7 +184,7 @@ void set_opposite_spawn_point()
                 y_margin = 3;
         }
 
-    for (uint8_t y=y_margin-2;y<y_margin+3;y++)
+    for (uint16_t y=y_margin-2;y<y_margin+3;y++)
     {
         if (set_starting_position(y, x_margin))
         {
@@ -207,7 +207,7 @@ void set_center_spawn_point()
 void generate_maze()
 {
     uint8_t num_of_gen;
-    uint8_t x;
+    uint16_t x;
 
     float f;
 
@@ -219,16 +219,18 @@ void generate_maze()
     // P(x) = f(a) + f'(a)*(x-a) + 1/2! * f''(a)*(x-a)^2 + 1/3! * f'''(a)*(x-a)^3 + ... 
     // i get polynomial P(x) = 9 * log_10(100) - 9 + 9*(x-100) / (ln(100) * 100) - 9*(x-100)^2 / (2 * 100^2 * ln(100)) + 3 * (x-100)^3 / (100^3 * ln(100))
     // P(x) = 9 + 9*(x-100)/(ln100 * 100) - 9 * (x-100)^2 / ( 2 * 100^2 * ln100) + 3*(x-100)^3 / (100^3 * ln100) 
-    // i used ln10 instead of ln100, to increase the slope
+    // i used ln10 instead of ln100, to increase the slope, changed some parameters to my liking
 
-    f = 10;
+    f = 11;
     f +=9*(x-a)/(LN_10 * a);
     f -= 9*(x-a)*(x-a)/(2*a*a* LN_10);
     f += 3*(x-a)*(x-a)*(x-a)/(a*a*a * LN_10);
 
-    //Serial.println(" f(" + String(x) + ") = "+String(f));
+    //Serial.print(" f(" + String(x) + ") = "+String(f));
 
     num_of_gen = round(f);
+
+    //Serial.println(",  num_of_gen:"+String(num_of_gen));
 
     x = number_of_cols < number_of_rows ? number_of_cols : number_of_rows;
     x = random(x/8,x/4) + 2;
@@ -259,11 +261,10 @@ void load_player_vision()
     uint8_t divisors[12] = {1,2,4,5,8,10,16,20,32,40}; // rows 320
 
     uint8_t idx_240, idx_320, col, rows, ray_lenght;
-    float ray_angle = 0.0177; // ~ 0.5 deg.
-    float deg = 0.5;
+    float ray_angle = 0.0175; // ~ 1 deg.
     rows = closest_to_divider(number_of_rows/2, divisors, 12, &idx_320);
     col = closest_to_divider(number_of_cols/2, divisors_, 18, &idx_240);
-    // Serial.println("");
+    //Serial.println("");
     //Serial.println("COL: " + String(number_of_cols/2) + "  divisors_240["+String(idx_240)+"] = "+String(col));
     //Serial.println("ROW: " + String(number_of_rows/2) + "  divisors_320["+String(idx_320)+"] = "+String(rows));
     
@@ -280,23 +281,19 @@ void load_player_vision()
 
     if (ray_lenght < 4)
     {
-        ray_angle = 0.28; // ~ 8 deg.
-        deg = 8;
+        ray_angle = 0.28; // ~ 16 deg.
     }
     else if (ray_lenght < 5)
     {
-        ray_angle = 0.14; // ~ 4 deg.
-        deg = 4;
+        ray_angle = 0.14; // ~ 8 deg.
     }
     else if (ray_lenght < 7)
     {
-        ray_angle = 0.07; // ~ 2 deg.
-        deg = 2;
+        ray_angle = 0.07; // ~ 4 deg.
     }
     else if (ray_lenght < 13)
     {
-        ray_angle = 0.035; // ~ 1 deg.
-        deg = 1;
+        ray_angle = 0.035; // ~ 2 deg.
     }
 
     //Serial.println("RAY_L: "+String(ray_lenght) + "    DEG: "+String(deg));
@@ -715,7 +712,7 @@ void pick_option()
                 options.set_mark(false,prev_pick_opt_2, 2);
                 options.set_mark(true,current_option, 2);
 
-                prev_pick_opt_2 = current_option;
+                prev_pick_opt_2 = current_option; // 0
                 break;
             case 1:
                 default_spawn = false;
@@ -724,7 +721,7 @@ void pick_option()
                 options.set_mark(false,prev_pick_opt_2, 2);
                 options.set_mark(true,current_option, 2);
 
-                prev_pick_opt_2 = current_option;
+                prev_pick_opt_2 = current_option; // 1
                 break;
             case 2:
                 default_spawn = false;
@@ -774,6 +771,13 @@ void pick_option()
             case 3:
                 current_layer++;
                 current_option=0;
+                        
+                joystick.on_dir_left(decrement_slider);
+                joystick.on_dir_right(increment_slider);
+                joystick.set_interval(100);
+
+                options.set_value(4,0, number_of_rows);
+                options.set_value(4,1, number_of_cols);
                 break;
 
             case 4:
@@ -785,9 +789,9 @@ void pick_option()
     else{
         switch(current_option)
         {
-            case 0:
+            case 0: // rows
                 break;
-            case 1:
+            case 1: // cols
                 break;
             case 2:
                 joystick.on_dir_left(do_nothing);
@@ -812,12 +816,6 @@ void pick_option()
         print_game_title();
     }
 
-    else if(current_layer == 4)
-    {
-        joystick.on_dir_left(decrement_slider);
-        joystick.on_dir_right(increment_slider);
-        joystick.set_interval(100);
-    }
     options.draw(current_layer,current_option);
 }
 
@@ -843,7 +841,7 @@ void setup()
     joystick.on_dir_down(move_down_opt);
     joystick.set_interval(200);
 
-    Serial.begin(921600);
+    //Serial.begin(921600);
     tft.init();
 
     maze_gen._init_();
@@ -868,8 +866,8 @@ void setup()
     options.create_option(3,3, "CUSTOM",3, false);
     options.create_option(3,4,"BACK", 3,false);
 
-    options.create_slider(4,0, "(|||) ROWS", 64,3,2); //custom
-    options.create_slider(4,1, "(---) COLS",48,3,2);
+    options.create_slider(4,0, "(|||) ROWS", 64, 8, 280, 3, 2); //custom
+    options.create_slider(4,1, "(---) COLS", 48, 8, 240, 3, 2);
     options.create_option(4,2,"BACK",3,false);
 
     tft.fillScreen(TFT_BLACK);

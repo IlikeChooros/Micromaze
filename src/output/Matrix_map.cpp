@@ -14,13 +14,13 @@ void Matrix_map::draw_map() // FOR 2D ONLY
     // }
     uint16_t x_pointer;
     uint16_t y_pointer;
-    uint8_t width_of_segment = _tft->width()/number_of_col_map; // 240
-    uint8_t height_of_segment = _tft->height()/number_of_rows_map; //320
+    uint16_t width_of_segment = _tft->width()/number_of_col_map; // 240
+    uint16_t height_of_segment = _tft->height()/number_of_rows_map; //320
 
     //Serial.println("H: "+String(tft.height())+" , W:"+String(tft.width())+" H seg:"+String(height_of_segment)+" W seg:"+String(width_of_segment));
-    for (uint8_t y=0;y<number_of_rows_map;y++)
+    for (uint16_t y=0;y<number_of_rows_map;y++)
     {
-        for (uint8_t x=0;x<number_of_col_map;x++)
+        for (uint16_t x=0;x<number_of_col_map;x++)
         {
             x_pointer = x*width_of_segment;
             y_pointer = y*height_of_segment;
@@ -36,7 +36,7 @@ void Matrix_map::draw_map() // FOR 2D ONLY
     }
 }
 
-void Matrix_map::set_map(uint8_t map[],uint8_t row, uint8_t col, uint8_t r, uint8_t g, uint8_t b)
+void Matrix_map::set_map(uint8_t map[],uint16_t row, uint16_t col, uint8_t r, uint8_t g, uint8_t b)
 {
     _map=map;
     number_of_col_map = col;
@@ -49,12 +49,12 @@ uint8_t* Matrix_map::get_current_map()
     return _map;
 }
 
-uint8_t Matrix_map::get_current_map_cols()
+uint16_t Matrix_map::get_current_map_cols()
 {
     return number_of_col_map;
 }
 
-uint8_t Matrix_map::get_current_map_rows()
+uint16_t Matrix_map::get_current_map_rows()
 {
     return number_of_rows_map;
 }

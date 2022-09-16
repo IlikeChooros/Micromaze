@@ -22,7 +22,7 @@ void Maze_generator::_init_()
 //            3
 
 
-void Maze_generator::create_generators(uint8_t starting_pos, uint8_t number_of_col, uint8_t number_of_rows)
+void Maze_generator::create_generators(uint8_t starting_pos, uint16_t number_of_col, uint16_t number_of_rows)
 {
     _number_of_cols = number_of_col;
     _number_of_rows = number_of_rows;
@@ -43,7 +43,7 @@ void Maze_generator::create_generators(uint8_t starting_pos, uint8_t number_of_c
         _map[y*number_of_col + number_of_col - 1] = 1;
     }
 
-    uint16_t p = number_of_col*number_of_rows;
+    uint32_t p = number_of_col*number_of_rows;
     for (uint16_t x = 0; x<number_of_col;x++)
     {
         _map[x]=1;
@@ -53,7 +53,7 @@ void Maze_generator::create_generators(uint8_t starting_pos, uint8_t number_of_c
     Node *head;
 
 // ------------     1   --  UP    ------------
-    uint8_t rand_num = random(7, _number_of_cols-6);
+    uint16_t rand_num = random(7, _number_of_cols-6);
     for(uint8_t i = 0;i<4;i++)
     {
         four_generators[i].set_size(1);
@@ -134,7 +134,7 @@ void Maze_generator::delete_nodes()
 
 // private
 
-void Maze_generator::move_wall_down(Node *node, uint8_t dist, uint16_t _pos)
+void Maze_generator::move_wall_down(Node *node, uint8_t dist, uint32_t _pos)
 {
     //  (x,y)
     //    O
@@ -173,7 +173,7 @@ jump_down:
     return;
 }
 
-void Maze_generator::move_wall_up(Node *node, uint8_t dist, uint16_t _pos)
+void Maze_generator::move_wall_up(Node *node, uint8_t dist, uint32_t _pos)
 {
     _pos+=_number_of_cols; 
 
@@ -214,7 +214,7 @@ jump_up:
     // _map[_pos +1 +_number_of_cols]=2;
 }
 
-void Maze_generator::move_wall_left(Node *node, uint8_t dist, uint16_t _pos)
+void Maze_generator::move_wall_left(Node *node, uint8_t dist, uint32_t _pos)
 {
     _pos++;
 
@@ -249,7 +249,7 @@ jump_left:
     return;
 
 }
-void Maze_generator::move_wall_right(Node *node, uint8_t dist, uint16_t _pos)
+void Maze_generator::move_wall_right(Node *node, uint8_t dist, uint32_t _pos)
 {
     _pos--;
 
@@ -290,7 +290,7 @@ void Maze_generator::check_possible_moves(uint8_t dir, uint8_t generator, Node* 
     // y  / / /  
     // y  / X /  
     // y  / / / 
-    uint16_t _pos=0;
+    uint32_t _pos=0;
     Point *temp_point = new Point(0,0);
     switch(dir)
     {                                                                       
