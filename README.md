@@ -17,7 +17,7 @@ Below, I will describe options in Micromaze and explain how they are affecting t
 
 
 
-----SPAWN POINT----
+# SPAWN POINT
 
 
   DEFAULT -> It works as follows: At the beginning, you will be placed at the center of the map, if you succeed to get score below 450 (you will gain 1 
