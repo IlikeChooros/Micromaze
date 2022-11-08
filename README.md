@@ -28,15 +28,13 @@ Below, I will describe options in Micromaze and explain how they are affecting t
 
   OPPOSITE -> You will be placed always in the opposite side of the exit (diagonally actually).
 
-----MAZE SIZE----
-
+# MAZE SIZE
 
 
   You can set to your liking maze dimensions. It affects the speed of maze generation, the bigger the map, the longer it will take to finish generation of a maze.
   
-  
 
-----PARAMETERS----
+# PARAMETERS
 
 
   GENERATOR DEPTH -> This greatly affects the maze generation, this number indicates how many times will the maze generation procedure be repeated.
