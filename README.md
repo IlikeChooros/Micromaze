@@ -10,11 +10,21 @@ Has customizable settings, in which you can set to your liking: spawn point, maz
 
 This game was made for esp32 with: display tft lcd 240x320 ILI9341 and PS2 thumbstick.
 
+# Requirements
+
+  i.   ESP-32
+  ii.  LCD 320x240 TFT with ILI9341 driver
+  iii. PS2 thumbstick
+  
+# Setup
+  Connect PS2 and display to ESP 32 using the pins to your liking. However you must change predefined pins in 'main.ino' to yours.
+  
+![image](https://user-images.githubusercontent.com/105538405/200512973-2ac1ce83-2542-4b2c-be37-7d69bb02c2fb.png)
+
+
 
 
 Below, I will describe options in Micromaze and explain how they are affecting the game.
-
-
 
 
 # SPAWN POINT
