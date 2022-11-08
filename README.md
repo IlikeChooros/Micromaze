@@ -12,6 +12,9 @@ This game was made for esp32 with: display tft lcd 240x320 ILI9341 and PS2 thumb
 
 # Requirements
 
+  Parts:
+  
+
   i.   ESP-32
   
   ii.  LCD 320x240 TFT with ILI9341 driver
@@ -19,8 +22,14 @@ This game was made for esp32 with: display tft lcd 240x320 ILI9341 and PS2 thumb
   iii. PS2 thumbstick
   
   
+  Libraries:
+  
+  i. TFT_eSPI
+  
+  
+  
 # Setup
-  Connect PS2 and display to ESP 32 using the pins to your liking. However you must change predefined pins in 'main.ino' to yours.
+  Connect PS2 thumbstick and display to ESP 32 using the pins to your liking. However you must change predefined pins in 'main.ino' to yours.
   
 ![image](https://user-images.githubusercontent.com/105538405/200512973-2ac1ce83-2542-4b2c-be37-7d69bb02c2fb.png)
 
