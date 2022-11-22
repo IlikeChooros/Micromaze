@@ -9,6 +9,10 @@
 #include "src/data-sturctures/LinkedList.h"
 #include "src/data-sturctures/Point.h"
 #include "src/data-sturctures/Point_extended.h"
+#include "src/data-sturctures/hsv_rgb.h"
+#include "src/on-run-game-functions/aesthetic.h"
+#include "src/on-run-game-functions/gen_depth.h"
+#include "src/on-run-game-functions/closest_to_div.h"
 
 #include <TFT_eSPI.h> 
 #include <SPI.h>
@@ -19,8 +23,7 @@
 #define ANALOG_Y 33
 #define NUMBER_OF_ROWS_MAP 32
 #define NUMBER_OF_COL_MAP 24
-#define LN_10 2.30258509
-#define a 95
+
 
 uint16_t number_of_cols = NUMBER_OF_COL_MAP*2;
 uint16_t number_of_rows = NUMBER_OF_ROWS_MAP*2;
@@ -80,63 +83,6 @@ bool default_num_gen = true;
 void do_nothing()
 {
     return;
-}
-
-uint32_t convert_to_RGB(uint8_t r, uint8_t g, uint8_t b)
-{
-    uint32_t RGB;
-    r = (r>>3);
-    g = (g>>2);
-    b = (b>>3);
-
-    RGB = RGB | (r<<11);
-    RGB = RGB | (g<<5);
-    RGB = RGB | (b);
-
-    return RGB;
-}
-
-uint32_t HSV_to_RGB(HSV color_hsv)
-{
-    float s = color_hsv.satrutaion/100;
-    float v = color_hsv.value/100;
-
-    float C = s*v;
-    float X = C * ( 1 - abs(fmod(color_hsv.hue/60,2) - 1));
-    float m = v - C; 
-
-    float r,g,b;
-
-    if (color_hsv.hue < 60)
-    {
-        r = C, g=X, b=0;
-    }
-    else if (color_hsv.hue<120)
-    {
-        r=X, g=C, b=0;
-    }    
-    else if (color_hsv.hue<180)
-    {
-        r=0, g=C, b=X;
-    }    
-    else if (color_hsv.hue<240)
-    {
-        r=0, g=X, b=C;
-    }    
-    else if (color_hsv.hue<300)
-    {
-        r=X, g=0, b=C;
-    }    
-    else
-    {
-        r=C, g=0, b=X;
-    }
-
-    return convert_to_RGB(
-        (r+m)*255,
-        (g+m)*255,
-        (b+m)*255
-    );
 }
 
 void show_vision()
@@ -207,60 +153,17 @@ void set_center_spawn_point()
     }
 }
 
-uint8_t calculate_gen_depth(uint16_t x)
-{
-    float f;
-
-    // f(x) = 9 * log_10 (x) - 9
-    // Using taylor series 
-    // for a = 100
-    // P(x) = f(a) + f'(a)*(x-a) + 1/2! * f''(a)*(x-a)^2 + 1/3! * f'''(a)*(x-a)^3 + ... 
-    // i get polynomial P(x) = 9 * log_10(100) - 9 + 9*(x-100) / (ln(100) * 100) - 9*(x-100)^2 / (2 * 100^2 * ln(100)) + 3 * (x-100)^3 / (100^3 * ln(100))
-    // P(x) = 9 + 9*(x-100)/(ln100 * 100) - 9 * (x-100)^2 / ( 2 * 100^2 * ln100) + 3*(x-100)^3 / (100^3 * ln100) 
-    // i used ln10 instead of ln100, to increase the slope, changed some parameters to my liking
-
-    f = 11;
-    f +=9*(x-a)/(LN_10 * a);
-    f -= 9*(x-a)*(x-a)/(2*a*a* LN_10);
-    f += 3*(x-a)*(x-a)*(x-a)/(a*a*a * LN_10);
-
-    //Serial.print(" f(" + String(x) + ") = "+String(f));
-    return round(f);
-}
-
 void generate_maze()
 {
-
     val_to_use = number_of_cols > number_of_rows? number_of_cols : number_of_rows;
 
-
     num_of_gen = default_num_gen ? calculate_gen_depth(val_to_use) : num_of_gen;
-    
-    //Serial.println(",  num_of_gen:"+String(num_of_gen));
 
     val_to_use = number_of_cols < number_of_rows ? number_of_cols : number_of_rows;
     val_to_use = random(val_to_use/8,val_to_use/4) + 2;
     maze_gen.create_generators(val_to_use,number_of_cols,number_of_rows);
     maze_gen.generate_maze(num_of_gen,5,13);
     maze_gen.delete_nodes();
-}
-
-uint8_t closest_to_divider(uint8_t num, uint8_t divisors[], uint8_t number_of_divsors, uint8_t *idx)
-{
-    int16_t val,min=250, abs_val;
-    for (uint8_t i=0;i<number_of_divsors;i++)
-    {
-        val = divisors[i] - num;
-        abs_val = abs(val);
-        //Serial.print("I: "+String(i) + " div["+String(i)+"] = "+String(divisors[i]) + " VAL: "+String(val) + " ABS: "+String(abs_val));
-        if (abs_val < min && val <= 0)
-        {
-            min = abs_val;
-            *idx = i;
-        }
-        //Serial.println(" ---MIN:"+String(min) + " IDX MIN: "+String(*idx));
-    }
-    return divisors[*idx];
 }
 
 void load_player_vision()
@@ -272,10 +175,6 @@ void load_player_vision()
     float ray_angle = 0.0175; // ~ 1 deg.
     rows = closest_to_divider(number_of_rows/2, rows_div, 10, &idx_320);
     col = closest_to_divider(number_of_cols/2, cols_div, 14, &idx_240);
-    // Serial.println("");
-    // Serial.println("COL: " + String(number_of_cols/2) + "  divisors_240["+String(idx_240)+"] = "+String(col));
-    // Serial.println("ROW: " + String(number_of_rows/2) + "  divisors_320["+String(idx_320)+"] = "+String(rows));
-    
    
     if (col < rows)
     {
@@ -351,173 +250,6 @@ void reset()
     timer_started = false;
 }
 
-void gradient_letters(const char str [], uint8_t starting_hue, float itr_val)
-{
-    text_color.hue = starting_hue;
-    uint8_t index=0;
-    while(str[index]!='0')
-    {
-        tft.print(str[index]);
-        text_color.hue+=itr_val;
-        text_color.hue = fmod(text_color.hue,360);
-        tft.setTextColor(HSV_to_RGB(text_color));
-        index++;
-    }
-    text_color.hue = starting_hue;
-}
-
-void ending_scene()
-{
-    float score=0;
-    tft.setCursor(0,0);
-    tft.fillScreen(TFT_BLACK);
-    tft.setTextFont(2);
-    tft.setRotation(1);
-    tft.setTextSize(1);
-    tft.println("       Your Score: ");
-    tft.println(" --- Time spent looking at map: "+String(map_time/1000) + " s.");
-    tft.println(" --- Time spent looking for exit: "+String(action_time/1000)+ " s.");
-    tft.println(" --- Button pressed: "+String(button_pressed)+ " times.");
-
-
-    // the smaller the is score the better performance
-    // keep the score in 0 - 1400
-    // for 64x48:
-    // score = action_time/80
-    // score += map_time/15
-    // score += button_pressed*100
-
-    // center:
-    //time spent on map: 4 sec
-    // time spent looking for exit: 20 sec
-    // score = 20*1000/80 + 4*1000/15 = 516
-
-    // opposite:
-    // score = 276
-
-    // center:
-    //time spent on map: 6 sec
-    // time spent looking for exit: 25 sec
-    // score = 25*1000/80 + 6*1000/15 = 712
-
-    // score ~ 1/map_size, the bigger the map the smaller (the better) score is.
-    // score ~ exit_time 
-    // score ~ map_time
-    // and if score1 and score2 for the same exit_time and map_time but score1 with opposite spawn and score2 with center spawn, score1 (opposite)< score2 (center) 
-    // score = (p * map_time + q * exit_time)*k/map_size, sloving this eqation with parameters listed above we get: p = 94, q = 24, if center spawn k=1, else k=1,87
-
-    float k = 1.87;
-    uint8_t p=141,q=48;
-
-    if (!center_spawn || (default_spawn && completed_game_with_high_score>1))
-    {
-        k = 1;
-    }
-
-    score = (p * map_time + q * action_time + 400000*button_pressed)*k;
-    score /= number_of_cols;
-    score /= number_of_rows;
-
-
-    text_color.hue += score/5;
-
-    if (score<450)
-    {
-        completed_game_with_high_score++;
-    }
-    else{
-        completed_game_with_high_score = completed_game_with_high_score>0 ? completed_game_with_high_score-1:0;
-    }
-    text_color.hue = text_color.hue > 360 ? 360: text_color.hue;
-
-    tft.setTextColor(HSV_to_RGB(text_color));
-    tft.println("");
-    tft.setTextSize(2);
-    tft.println("Overall score: "+ String((uint32_t)score));
-
-    tft.setTextSize(1);
-
-    uint8_t rand_num;
-    if (score<=200)
-    {
-        gradient_letters("YOU ARE FABULOUS!0", text_color.hue, 30);
-    }
-    else if (score<=350)
-    {
-        rand_num = random(3);
-        if (rand_num==0)
-        {
-            gradient_letters("JUST BUILT DIFFERENT0", text_color.hue, 20);
-        }
-        else if(rand_num==1)
-        {
-            gradient_letters("NO OFFENSE, JUST SUPERIOR HUMAN BEING :^)0",text_color.hue, 9.5);
-        }
-        else{
-            gradient_letters("A-MAZING!0", text_color.hue, 23);
-        }
-    }
-    else if (score<=450)
-    {
-        gradient_letters("Great performance.0",text_color.hue, 8);
-    }
-    else if (score<550)
-    {
-        gradient_letters("Mediocare performance.0",text_color.hue, 5);
-    }
-    else if (score<650)
-    {
-        gradient_letters("Pathetic. :^)0",text_color.hue,7);
-    }
-    else if (score<850)
-    {
-        gradient_letters("That was something, I guess...0",text_color.hue,5);
-    }
-    else
-    {
-        rand_num = random(6);
-        if (rand_num<2)
-        {
-            tft.print("My eyes are bleeding...");
-        }
-        else if(rand_num==3)
-        {
-            tft.print("What an awful performance!");
-        }
-        else if(rand_num==4)
-        {
-            tft.print("Ludicrous preformance!");
-        }
-        else
-        {
-            tft.print("Were you asleep while playing this game?");
-        }
-    }
-
-    tft.println("");
-    tft.println("");
-    tft.setTextColor(TFT_WHITE);
-    tft.println("The more time spent, the bigger the score is,");
-    tft.println("so low score == great performance");
-    tft.println("");
-
-    text_color.hue = 100;
-    tft.setTextColor(HSV_to_RGB(text_color)) ;tft.print("0 -");
-    for (uint i=130;i<360;i+=20)
-    {
-        text_color.hue = i;
-        tft.setTextColor(HSV_to_RGB(text_color));
-        tft.print(" "+String((i-100)*5)+" -");
-    }
-    text_color.hue = 360;
-    tft.setTextColor(HSV_to_RGB(text_color)) ;tft.print(" 1400+");
-
-    tft.setTextFont(1);
-    tft.setRotation(0);
-    text_color.hue = 100;
-    tft.setTextColor(TFT_WHITE);
-}
-
 void down()
 {
     move(DOWN);
@@ -530,7 +262,6 @@ void left()
 {
     move(LEFT);
 }
-
 void right()
 {
     move(RIGHT);
@@ -554,7 +285,7 @@ void move(uint8_t dir)
             action_time = millis() - action_time;
             button_joystick.on_press(reset);
             finished = true;
-            ending_scene();
+            ending_scene(text_color, map_time, action_time, button_pressed, center_spawn, default_spawn, completed_game_with_high_score, number_of_cols, number_of_rows, tft);
             return;
         }
     }
@@ -608,40 +339,6 @@ void start()
     player_vision.load_player(convert_to_RGB(176, 168, 111),convert_to_RGB(99, 5, 14), 0, player.get_current_player_position());
 }
 
-void fading_effect(const char str [], uint8_t size ,HSV starting_color, uint8_t itr)
-{
-    uint8_t hue = starting_color.hue;
-    uint8_t i=0;
-
-    uint8_t half_size = (size >> 1);
-    while (i<size)
-    {
-        tft.setTextColor(HSV_to_RGB(starting_color));
-        tft.print(str[i]);
-        if (i<half_size)
-        {
-            starting_color.hue += itr;
-        }
-        else{
-            starting_color.hue -= itr;
-        }
-        starting_color.hue = fmod(starting_color.hue, 360);
-        i++;
-    }
-    starting_color.hue = hue;
-}
-
-void print_game_title()
-{
-    tft.setCursor(90,30);
-    tft.setRotation(1);
-    tft.setTextSize(3);
-
-    HSV fading_color = {185,82,90};
-    fading_effect("MICROMAZE", 9, fading_color, 5.3);
-
-}
-
 void increment_slider()
 {
     if (current_layer == 5 && current_option == 0 && default_num_gen)
@@ -672,7 +369,7 @@ void move_opt()
     //Serial.println("NUM OF OPTIONS = "+String(num_of_options)+" CURRENT_OPT: "+String(current_option) + "  CURRENT LAYER: "+String(current_layer));
     if (current_layer == 0)
     {
-        print_game_title();
+        print_game_title(tft);
     }
     switch(option_dir)
     {
@@ -872,7 +569,7 @@ void pick_option()
 
     if (current_layer == 0)
     {
-        print_game_title();
+        print_game_title(tft);
     }
 
     options.draw(current_layer,current_option);
@@ -935,7 +632,7 @@ void setup()
     options.create_option(5,2, "BACK", 2,false);
 
     tft.fillScreen(TFT_BLACK);
-    print_game_title();
+    print_game_title(tft);
     options.draw(0,0);
     finished = false;
 }

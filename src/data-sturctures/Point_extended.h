@@ -12,12 +12,4 @@ struct Point_extended
     float fl_y;
 };
 
-struct HSV
-{
-    float hue;
-    float satrutaion;
-    float value;
-};
-
-
 #endif

@@ -5,6 +5,7 @@
 #include <SPI.h>
 #include "../data-sturctures/Point.h"
 #include "../data-sturctures/Point_extended.h"
+#include "../data-sturctures/hsv_rgb.h"
 #include <math.h>
 
 class Camera
@@ -43,7 +44,6 @@ class Camera
 
 
     void draw_current_vision(uint8_t x, uint8_t y);
-    void show_current_angle_of_player(uint16_t x_pos, uint16_t y_pos);
 
     float check_if_overflow(double angle);
     bool check_ray_collision(uint32_t ray_pos);
@@ -55,10 +55,6 @@ class Camera
 
     uint16_t player_x(uint16_t x);
     uint16_t player_y(uint16_t y);
-    
-
-    uint32_t convert_to_RGB(uint8_t r, uint8_t g, uint8_t b);
-    uint32_t HSV_to_RGB(HSV color_hsv, uint8_t dist);
 
     public:
     Camera(TFT_eSPI *tft);

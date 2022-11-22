@@ -5,13 +5,6 @@
 #include <math.h>
 #include "../data-sturctures/Point.h"
 
-enum Dir{
-    UP,
-    DOWN,
-    LEFT,
-    RIGHT
-};
-
 class Player_tft
 {
     Point _player_coordinates;

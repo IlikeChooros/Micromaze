@@ -3,6 +3,13 @@
 
 #include "Arduino.h"
 
+enum Dir{
+    UP,
+    DOWN,
+    LEFT,
+    RIGHT
+};
+
 class Point
 {
     public:

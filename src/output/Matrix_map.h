@@ -4,6 +4,7 @@
 #include <TFT_eSPI.h> 
 #include <SPI.h>
 #include "Arduino.h"
+#include "../data-sturctures/hsv_rgb.h"
 
 class Matrix_map
 {
@@ -12,8 +13,6 @@ class Matrix_map
     uint16_t number_of_col_map;
     uint32_t _colour;
     TFT_eSPI *_tft;
-
-    uint32_t converToRGB(uint8_t r, uint8_t g, uint8_t b); 
 
     public:
     Matrix_map(TFT_eSPI *tft);
