@@ -18,9 +18,9 @@
 #include <SPI.h>
 #include <math.h>
 
-#define BUTTON_PIN 25
-#define ANALOG_X 32
-#define ANALOG_Y 33
+#define BUTTON_PIN 12
+#define ANALOG_X 33
+#define ANALOG_Y 27
 #define NUMBER_OF_ROWS_MAP 32
 #define NUMBER_OF_COL_MAP 24
 
@@ -597,7 +597,7 @@ void setup()
     joystick.on_dir_down(move_down_opt);
     joystick.set_interval(200);
 
-    //Serial.begin(921600);
+    Serial.begin(921600);
     tft.init();
 
     maze_gen._init_();

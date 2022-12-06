@@ -44,33 +44,33 @@ void Joystick::read()
         uint16_t x = analogRead(_angalog_x);
         uint16_t y = analogRead(_angalog_y);
 
-        //Serial.print("MOVE: ( x = "+String(x)+" , y = "+ String(y));
+        Serial.print("MOVE: ( x = "+String(x)+" , y = "+ String(y));
 
         if ((x<=1500 && x>=0) && (x<=y + _ignore_val) && (x<= -y + 4096 - _ignore_val))
         {
-            // Serial.println(" UP (FORWARD) ");
-            // Serial.println(""); 
+            Serial.println(" UP (FORWARD) ");
+            Serial.println(""); 
             this->_on_up(); // in kartesian coordinate system it would be 'left' triagnle
         }
 
-        else if ((x>=2500 && x<=4096) && (x>=y - _ignore_val) && (x>= - y +4096 + _ignore_val))
+        else if ((x>=3200 && x<=4096) && (x>=y - _ignore_val) && (x>= - y +4096 + _ignore_val))
         {
-            // Serial.println(" DOWN (BACKWARD) ");
-            // Serial.println(""); 
+            Serial.println(" DOWN (BACKWARD) ");
+            Serial.println(""); 
             this->_on_down(); // 'right' triagnle
         }
 
-        else if ((y>=2500 && y<=4096) && (x> -y +4096 - _ignore_val) && (x<y + _ignore_val))
+        else if ((y>=3200 && y<=4096) && (x> -y +4096 - _ignore_val) && (x<y + _ignore_val))
         {
-            // Serial.println(" LEFT ");
-            // Serial.println(""); 
+            Serial.println(" LEFT ");
+            Serial.println(""); 
             this->_on_left(); // 'up' triagnle
         }
 
         else if ((y<=1500 && y>=0) && (x < -y + 4096 + _ignore_val) && (x>y - _ignore_val))
         {
-            // Serial.println(" RIGHT ");
-            // Serial.println("");
+            Serial.println(" RIGHT ");
+            Serial.println("");
             this->_on_right();
         }
 
