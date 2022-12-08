@@ -291,7 +291,7 @@ void move(uint8_t dir)
     }
     player_vision.draw_vision_with_ray_cast(0, player.get_current_player_position());
     player_vision.clear_prev_player_position(player.get_current_player_position());
-    player_vision.draw_player(player.get_current_player_position(), 0);
+    player_vision.draw_player(player.get_current_player_position(), player.get_player_angle());
 }
 
 void start()

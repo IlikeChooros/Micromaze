@@ -5,6 +5,8 @@
 #include <math.h>
 #include "../data-sturctures/Point.h"
 
+#define ANGLE_ITERATOR 0.1f
+
 class Player_tft
 {
     Point _player_coordinates;
@@ -25,13 +27,15 @@ class Player_tft
     bool check_collision();
     void check_if_overflow();
 
+    void move_upward_downward(bool upward);
+
     public:
     Player_tft(TFT_eSPI *tft, Matrix_map *matrix_map);
     void _init_();
     Point move(uint8_t dir);
     Point get_current_player_position();
+    float get_player_angle();
     void set_player_posistion(Point point);
-
 };
 
 

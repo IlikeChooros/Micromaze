@@ -56,6 +56,8 @@ class Camera
     uint16_t player_x(uint16_t x);
     uint16_t player_y(uint16_t y);
 
+    void draw_player_angle(uint16_t x_pos, uint16_t y_pos);
+
     public:
     Camera(TFT_eSPI *tft);
     void load_map(uint8_t *matrix, uint16_t number_of_cols, uint16_t number_of_rows, uint8_t width_of_vision, uint8_t height_of_vision, uint32_t wall_color);

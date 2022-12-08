@@ -61,6 +61,26 @@ void Camera::draw_player(Point player_pos, float angle)
     _player_angle = angle;
 
     _tft->fillRect(x_pos*scale_x, y_pos*scale_y, scale_x, scale_y, player_color);
+
+    draw_player_angle(x_pos, y_pos);
+}
+
+void Camera::draw_player_angle(uint16_t x_pos, uint16_t y_pos)
+{
+    float radius_x = x_pos + 0.5f,
+          radius_y = y_pos + 0.5f;
+    
+    radius_y += sinf(this->_player_angle);
+    radius_x += cosf(this->_player_angle);
+
+    radius_x *= (float)scale_x;
+    radius_y *= (float)scale_y;
+
+    Serial.println("R_X: "+String(radius_x) + "  R_Y: "+String(radius_y));
+    Serial.println("ROUNDED_X: "+String(roundf(radius_x)) + "  ROUNDED_Y: "+String(roundf(radius_y)));
+    Serial.println("");
+
+    _tft->fillRect(roundf(radius_x), roundf(radius_y), 0.3f*scale_x, 0.3f*scale_y, this->player_angle_color);
 }
 
 void Camera::draw_vision_with_ray_cast(float angle, Point player_pos)
@@ -263,7 +283,7 @@ float Camera::check_if_overflow(double angle)
     }
     else if (angle<=0)
     {
-        return angle = 6.28+angle;
+        return angle += 6.28;
     }
     return angle;
 }
