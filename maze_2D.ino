@@ -205,7 +205,7 @@ void load_player_vision()
 
     //Serial.println("RAY_L: "+String(ray_lenght));
 
-    player_vision.load_ray_casting(ray_angle, 6.28, ray_lenght, color);
+    player_vision.load_ray_casting(ray_angle, 1.22f, ray_lenght, color);
 }
 
 void draw_player_on_map()
@@ -289,7 +289,7 @@ void move(uint8_t dir)
             return;
         }
     }
-    player_vision.draw_vision_with_ray_cast(0, player.get_current_player_position());
+    player_vision.draw_vision_with_ray_cast(player.get_player_angle(), player.get_current_player_position());
     player_vision.clear_prev_player_position(player.get_current_player_position());
     player_vision.draw_player(player.get_current_player_position(), player.get_player_angle());
 }

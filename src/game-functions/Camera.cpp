@@ -58,27 +58,28 @@ void Camera::draw_player(Point player_pos, float angle)
 
     x_pos = player_x(player_pos.x);
     y_pos = player_y(player_pos.y);
-    _player_angle = angle;
+    
 
     _tft->fillRect(x_pos*scale_x, y_pos*scale_y, scale_x, scale_y, player_color);
 
-    draw_player_angle(x_pos, y_pos);
+    if (angle != _player_angle)
+    {
+        this->_player_angle = angle;
+        draw_player_angle(x_pos, y_pos);
+    }
+    
 }
 
 void Camera::draw_player_angle(uint16_t x_pos, uint16_t y_pos)
 {
-    float radius_x = x_pos + 0.5f,
+    float radius_x = x_pos + 0.4f,
           radius_y = y_pos + 0.5f;
     
-    radius_y += sinf(this->_player_angle);
-    radius_x += cosf(this->_player_angle);
+    radius_y += sinf(this->_player_angle) * 0.7f;
+    radius_x += cosf(this->_player_angle) * 0.7f;
 
     radius_x *= (float)scale_x;
     radius_y *= (float)scale_y;
-
-    Serial.println("R_X: "+String(radius_x) + "  R_Y: "+String(radius_y));
-    Serial.println("ROUNDED_X: "+String(roundf(radius_x)) + "  ROUNDED_Y: "+String(roundf(radius_y)));
-    Serial.println("");
 
     _tft->fillRect(roundf(radius_x), roundf(radius_y), 0.3f*scale_x, 0.3f*scale_y, this->player_angle_color);
 }
@@ -239,11 +240,11 @@ void Camera::ray_cast(double angle, Point player_pos, int16_t vector_x, int16_t 
 
     for (uint8_t i = 0; i<_ray_lenght;i++)
     {
-        ray_position.fl_x += sinus;
-        ray_position.fl_y += cosinus;
+        ray_position.fl_x += cosinus;
+        ray_position.fl_y += sinus;
 
-        ray_position.x = round(ray_position.fl_x);
-        ray_position.y = round(ray_position.fl_y);
+        ray_position.x = roundf(ray_position.fl_x);
+        ray_position.y = roundf(ray_position.fl_y);
 
         ray_pos = ray_position.y * _number_of_cols + ray_position.x;
         if (check_ray_collision(ray_pos))

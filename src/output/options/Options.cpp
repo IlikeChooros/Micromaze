@@ -1,8 +1,10 @@
 #include "Options.h"
 
-Options::Options(TFT_eSPI *tft)
+Options::Options(uint8_t index, TFT_eSPI *tft, void(*on_action)(void))
 {
     this->_tft = tft;
+    this->_index = index;
+    this->_on_action = on_action;
 }
 
 void Options::_init_(uint8_t number_of_normal_opt, uint8_t num_of_sliders, uint8_t num_of_layers)

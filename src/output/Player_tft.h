@@ -5,12 +5,15 @@
 #include <math.h>
 #include "../data-sturctures/Point.h"
 
-#define ANGLE_ITERATOR 0.1f
+#define ANGLE_ITERATOR 0.2f
 
 class Player_tft
 {
     Point _player_coordinates;
     Point _prev_player_coordinates;
+
+    float _fl_player_x,
+          _fl_player_y;
 
     uint16_t _player_height;
     uint16_t _player_width;

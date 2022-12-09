@@ -5,6 +5,11 @@ Player_tft::Player_tft(TFT_eSPI *tft, Matrix_map *matrix_map)
     _tft=tft;
     _matrix_map=matrix_map;
     angle = 0;
+
+    this->_player_coordinates.x = 0;
+    this->_player_coordinates.y = 0;
+    this->_fl_player_x = 0;
+    this->_fl_player_y = 0;
 }
 
 void Player_tft::_init_()
@@ -17,9 +22,7 @@ void Player_tft::_init_()
 Point Player_tft::move(uint8_t dir)
 {
     Point collision_point;
-    _prev_player_coordinates.x=_player_coordinates.x;
-    _prev_player_coordinates.y=_player_coordinates.y;
-
+    _prev_player_coordinates = _player_coordinates;
     switch (dir)
     {
         case 0: // UP
@@ -29,11 +32,11 @@ Point Player_tft::move(uint8_t dir)
             move_upward_downward(false);
             break;
         case 2: // LEFT
-            this->angle += ANGLE_ITERATOR;
+            this->angle -= ANGLE_ITERATOR;
             check_if_overflow();
             break;
         case 3: // RIGHT
-            this->angle -= ANGLE_ITERATOR;
+            this->angle += ANGLE_ITERATOR;
             check_if_overflow();
             break;
         default:
@@ -45,6 +48,8 @@ Point Player_tft::move(uint8_t dir)
     {
         collision_point = _player_coordinates;
         _player_coordinates = _prev_player_coordinates;
+        this->_fl_player_x = _player_coordinates.x;
+        this->_fl_player_y = _player_coordinates.y;
     }
 
     return collision_point;
@@ -70,23 +75,20 @@ void Player_tft::move_upward_downward(bool upward)
 {
     float sinus = sinf(angle),
         cosinus = cosf(angle);
-    
-    float fl_player_x = this->_player_coordinates.x,
-          fl_player_y = this->_player_coordinates.y;
 
     if (upward)
     {
-        fl_player_x += sinus;
-        fl_player_y += cosinus;
+        _fl_player_x += cosinus;
+        _fl_player_y += sinus;
     }
     else
     {
-        fl_player_x -= sinus;
-        fl_player_y -= cosinus;
+        _fl_player_x -= cosinus;
+        _fl_player_y -= sinus;
     }
 
-    this->_player_coordinates.x = roundf(fl_player_x);
-    this->_player_coordinates.y = roundf(fl_player_y);
+    this->_player_coordinates.x = roundf(_fl_player_x);
+    this->_player_coordinates.y = roundf(_fl_player_y);
 }
 
 // private
